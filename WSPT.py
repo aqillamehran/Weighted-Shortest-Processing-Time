@@ -10,40 +10,57 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS (Matching Style) ──────────────────────────────────────────────
+# ─── Custom CSS (Updated Color Palette) ───────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght=300;400;500;600&family=DM+Mono:wght=400;500&display=swap');
 
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-.stApp { background: #FDF6F9; }
-[data-testid="stSidebar"] { background: #2A1A3D !important; border-right: 1px solid #452A5C; }
-[data-testid="stSidebar"] * { color: #E8D6F5 !important; }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #F5E8FD !important; }
+/* Background utama aplikasi menggunakan warna ungu muda pastel sesuai slide */
+.stApp { background: #E2C9F3; } 
 
+/* Sidebar disesuaikan dengan warna ungu medium gelap */
+[data-testid="stSidebar"] { background: #5B3E7A !important; border-right: 1px solid #75529C; }
+[data-testid="stSidebar"] * { color: #F5E8FD !important; }
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #FFFFFF !important; }
+
+/* Hero Banner menggunakan gradasi ungu khas dari gambar */
 .hero-banner {
-    background: linear-gradient(135deg, #2A1A3D 0%, #53357B 55%, #C278E8 100%);
+    background: linear-gradient(135deg, #4A2E66 0%, #7B52A8 60%, #A57CC7 100%);
     border-radius: 16px; padding: 36px 40px; margin-bottom: 28px;
+    box-shadow: 0 4px 15px rgba(74,46,102,0.15);
 }
-.hero-title { font-size: 28px; font-weight: 600; color: #F5E8FD; margin: 0 0 6px; }
-.hero-sub { font-size: 14px; color: #DCC2F5; margin: 0; }
+.hero-title { font-size: 28px; font-weight: 600; color: #FFFFFF; margin: 0 0 6px; }
+.hero-sub { font-size: 14px; color: #EAD5FA; margin: 0; }
 
+/* Kartu metrik dengan background putih bersih agar kontras */
 .metric-card {
     background: white; border-radius: 12px; padding: 18px 20px;
-    border: 1px solid #E8D6F5; box-shadow: 0 1px 6px rgba(130,80,180,0.07);
+    border: 1px solid #D2B4E8; box-shadow: 0 2px 8px rgba(91,62,122,0.08);
 }
-.metric-card.purple { border-top: 3px solid #C278E8; }
-.metric-card.lavender { border-top: 3px solid #A070D4; }
-.metric-card.coral { border-top: 3px solid #E878A0; }
+/* Border atas kartu menggunakan variasi warna aksen dari slide */
+.metric-card.purple { border-top: 4px solid #7B52A8; }
+.metric-card.lavender { border-top: 4px solid #A57CC7; }
+.metric-card.coral { border-top: 4px solid #FFD15C; } /* Sentuhan aksen kuning dari slide */
 
-.metric-label { font-size: 11px; font-weight: 600; color: #A084C0; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-.metric-value { font-size: 24px; font-weight: 600; color: #2A1A3D; font-family: 'DM Mono', monospace; }
-.metric-sub { font-size: 11px; color: #A084C0; margin-top: 3px; }
+.metric-label { font-size: 11px; font-weight: 600; color: #7B52A8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 600; color: #321A47; font-family: 'DM Mono', monospace; }
+.metric-sub { font-size: 11px; color: #9275A3; margin-top: 3px; }
 
 .section-header { display: flex; align-items: center; gap: 10px; margin: 24px 0 14px; }
-.section-title { font-size: 16px; font-weight: 600; color: #2A1A3D; }
-.info-box { background: #F7F0FF; border-left: 4px solid #C278E8; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #53357B; }
-hr { border-color: #E8D6F5 !important; }
+.section-title { font-size: 16px; font-weight: 600; color: #321A47; }
+.info-box { background: #F3EAFD; border-left: 4px solid #7B52A8; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #4A2E66; }
+hr { border-color: #CBB0E0 !important; }
+
+/* Customisasi warna tombol utama agar matching */
+div.stButton > button:first-child {
+    background-color: #6C4693 !important;
+    color: white !important;
+    border: none !important;
+}
+div.stButton > button:first-child:hover {
+    background-color: #553375 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -51,8 +68,8 @@ hr { border-color: #E8D6F5 !important; }
 with st.sidebar:
     st.markdown("""
     <div style='padding: 20px 0 16px'>
-        <div style='font-size:22px; font-weight:700; color:#F5E8FD;'>WSPT Scheduler</div>
-        <div style='font-size:12px; color:#A084C0; margin-top:3px'>Weighted Shortest Processing Time</div>
+        <div style='font-size:22px; font-weight:700; color:#FFFFFF;'>WSPT Scheduler</div>
+        <div style='font-size:12px; color:#EAD5FA; margin-top:3px'>Weighted Shortest Processing Time</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -108,15 +125,10 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
     if edited_df is not None and len(edited_df) > 0:
         df_jobs = edited_df.dropna().copy()
         
-        # ─── WSPT Calculation Logic ────────────────────────────────────────────
-        # 1. Hitung rasio tj / Wj
+        # ─── WSPT Calculation Logic (TIDAK BERUBAH) ───────────────────────────
         df_jobs["Rasio_tj_Wj"] = df_jobs["Processing_Time"] / df_jobs["Weight"]
-        
-        # 2. Urutkan berdasarkan rasio terkecil ke terbesar
-        # Jika rasio sama, diurutkan berdasarkan Processing_Time terkecil (Aturan Tambahan)
         df_wspt = df_jobs.sort_values(by=["Rasio_tj_Wj", "Processing_Time"], ascending=[True, True]).reset_index(drop=True)
         
-        # 3. Hitung Flow Time & Weighted Flow Time
         start_times = []
         flow_times = []
         current_time = 0
@@ -130,7 +142,6 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         df_wspt["Flow_Time"] = flow_times
         df_wspt["Weighted_Flow_Time"] = df_wspt["Weight"] * df_wspt["Flow_Time"]
         
-        # ─── Hitung Metrik Performa (Sesuai Rumus Gambar) ─────────────────────
         total_flow_time = df_wspt["Flow_Time"].sum()
         total_weighted_flow_time = df_wspt["Weighted_Flow_Time"].sum()
         total_weight = df_wspt["Weight"].sum()
@@ -157,27 +168,25 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         
         df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
         df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
-        
-        # Rename kolom agar presisi seperti di gambar tugas
         df_display.columns = ["Job", "t_j / W_j", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
         
-        # Membaca style agar rapi
         st.dataframe(
             df_display.style.format({"t_j / W_j": "{:.1f}"}),
             use_container_width=True
         )
         
-        # Menampilkan string urutan text seperti di gambar (contoh: 3-4-8...)
         job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
         st.info(f"**Urutan yang dihasilkan (Berdasarkan nomor Job):** {job_order}")
         
         st.markdown("<hr>", unsafe_allow_html=True)
         
-        # ─── VISUALISASI GANTT CHART ──────────────────────────────────────────
+        # ─── VISUALISASI GANTT CHART (WARNA DISESUAIKAN TEMA SLIDE) ───────────
         st.markdown("""<div class="section-header"><div class="section-title">📈 Gantt Chart Timeline (WSPT)</div></div>""", unsafe_allow_html=True)
         
         fig_gantt = go.Figure()
-        colors = px.colors.qualitative.Pastel
+        
+        # Menggunakan palet warna kustom bergradasi ungu-lavender-pink pastel-kuning cerah
+        custom_colors = ['#D1B3E3', '#BFA2DB', '#A27BCA', '#8854C0', '#723CB5', '#5E29A4', '#FF79B4', '#FFD15C']
         
         for idx, row in df_wspt.iterrows():
             fig_gantt.add_trace(go.Bar(
@@ -188,18 +197,19 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
                 name=row["Job_Name"],
                 text=f"{row['Job_Name']}",
                 textposition='inside',
-                marker=dict(color=colors[idx % len(colors)], line=dict(color='white', width=1.5))
+                marker=dict(color=custom_colors[idx % len(custom_colors)], line=dict(color='white', width=1.5))
             ))
             
         fig_gantt.update_layout(
             barmode='stack',
             height=250,
-            plot_bgcolor="white",
+            plot_bgcolor="rgba(255,255,255,0.5)",
+            paper_bgcolor="rgba(0,0,0,0)",
             showlegend=True,
             xaxis=dict(
                 title="Waktu Proses", 
-                gridcolor="#F0E8F5",
-                tickvals=[0] + list(df_wspt["Flow_Time"]), # Membuat penanda angka di chart presisi sesuai akumulasi waktu selesai
+                gridcolor="#D2B4E8",
+                tickvals=[0] + list(df_wspt["Flow_Time"]),
             ),
             yaxis=dict(showticklabels=False)
         )

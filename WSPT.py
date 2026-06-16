@@ -117,8 +117,8 @@ edited_df = st.data_editor(
     use_container_width=True,
     column_config={
         "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True),
-        "Processing_Time": st.column_config.NumberColumn("Waktu Proses ($t_j$)", min_value=1, step=1, format="%d"),
-        "Weight": st.column_config.NumberColumn("Bobot ($W_j$)", min_value=1, step=1, format="%d")
+        "Processing_Time": st.column_config.NumberColumn("Waktu Proses (Processing Time)", min_value=1, step=1, format="%d"),
+        "Weight": st.column_config.NumberColumn("Bobot (Weight)", min_value=1, step=1, format="%d")
     }
 )
 

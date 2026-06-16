@@ -10,56 +10,57 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS (Updated Color Palette) ───────────────────────────────────────
+# ─── Custom CSS (Warna Sidebar & Banner Lebih Muda) ───────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght=300;400;500;600&family=DM+Mono:wght=400;500&display=swap');
 
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-/* Background utama aplikasi menggunakan warna ungu muda pastel sesuai slide */
-.stApp { background: #E2C9F3; } 
+/* Background utama aplikasi menggunakan warna ungu muda pastel cerah */
+.stApp { background: #F3EAFD; } 
 
-/* Sidebar disesuaikan dengan warna ungu medium gelap */
-[data-testid="stSidebar"] { background: #5B3E7A !important; border-right: 1px solid #75529C; }
-[data-testid="stSidebar"] * { color: #F5E8FD !important; }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #FFFFFF !important; }
+/* SIDEBAR: Diubah menjadi warna ungu pastel yang lebih muda, lembut, dan tidak pekat */
+[data-testid="stSidebar"] { background: #9B72C4 !important; border-right: 1px solid #B08CD6; }
+/* Warna teks di dalam sidebar disesuaikan agar tetap kontras dan terbaca */
+[data-testid="stSidebar"] * { color: #2A1A3D !important; }
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #2A1A3D !important; }
 
-/* Hero Banner menggunakan gradasi ungu khas dari gambar */
+/* HERO BANNER / UPPERSIDE: Menggunakan gradasi ungu medium-muda yang cerah */
 .hero-banner {
-    background: linear-gradient(135deg, #4A2E66 0%, #7B52A8 60%, #A57CC7 100%);
+    background: linear-gradient(135deg, #8558B4 0%, #9B72C4 60%, #B28DE0 100%);
     border-radius: 16px; padding: 36px 40px; margin-bottom: 28px;
-    box-shadow: 0 4px 15px rgba(74,46,102,0.15);
+    box-shadow: 0 4px 12px rgba(133,88,180,0.1);
 }
 .hero-title { font-size: 28px; font-weight: 600; color: #FFFFFF; margin: 0 0 6px; }
-.hero-sub { font-size: 14px; color: #EAD5FA; margin: 0; }
+.hero-sub { font-size: 14px; color: #F3EAFD; margin: 0; }
 
-/* Kartu metrik dengan background putih bersih agar kontras */
+/* Kartu metrik dengan background putih bersih */
 .metric-card {
     background: white; border-radius: 12px; padding: 18px 20px;
-    border: 1px solid #D2B4E8; box-shadow: 0 2px 8px rgba(91,62,122,0.08);
+    border: 1px solid #D9C5EB; box-shadow: 0 2px 8px rgba(133,88,180,0.05);
 }
-/* Border atas kartu menggunakan variasi warna aksen dari slide */
-.metric-card.purple { border-top: 4px solid #7B52A8; }
-.metric-card.lavender { border-top: 4px solid #A57CC7; }
-.metric-card.coral { border-top: 4px solid #FFD15C; } /* Sentuhan aksen kuning dari slide */
+/* Border atas kartu menggunakan variasi warna aksen tema cerah */
+.metric-card.purple { border-top: 4px solid #8558B4; }
+.metric-card.lavender { border-top: 4px solid #B28DE0; }
+.metric-card.coral { border-top: 4px solid #FFD15C; } /* Aksen kuning lembut */
 
-.metric-label { font-size: 11px; font-weight: 600; color: #7B52A8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-.metric-value { font-size: 24px; font-weight: 600; color: #321A47; font-family: 'DM Mono', monospace; }
-.metric-sub { font-size: 11px; color: #9275A3; margin-top: 3px; }
+.metric-label { font-size: 11px; font-weight: 600; color: #8558B4; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 600; color: #2A1A3D; font-family: 'DM Mono', monospace; }
+.metric-sub { font-size: 11px; color: #75529C; margin-top: 3px; }
 
 .section-header { display: flex; align-items: center; gap: 10px; margin: 24px 0 14px; }
-.section-title { font-size: 16px; font-weight: 600; color: #321A47; }
-.info-box { background: #F3EAFD; border-left: 4px solid #7B52A8; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #4A2E66; }
-hr { border-color: #CBB0E0 !important; }
+.section-title { font-size: 16px; font-weight: 600; color: #2A1A3D; }
+.info-box { background: #FFFFFF; border-left: 4px solid #9B72C4; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #523573; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
+hr { border-color: #D9C5EB !important; }
 
-/* Customisasi warna tombol utama agar matching */
+/* Customisasi warna tombol utama agar matching dengan ungu yang lebih muda */
 div.stButton > button:first-child {
-    background-color: #6C4693 !important;
+    background-color: #8558B4 !important;
     color: white !important;
     border: none !important;
 }
 div.stButton > button:first-child:hover {
-    background-color: #553375 !important;
+    background-color: #7246A0 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -68,8 +69,8 @@ div.stButton > button:first-child:hover {
 with st.sidebar:
     st.markdown("""
     <div style='padding: 20px 0 16px'>
-        <div style='font-size:22px; font-weight:700; color:#FFFFFF;'>WSPT Scheduler</div>
-        <div style='font-size:12px; color:#EAD5FA; margin-top:3px'>Weighted Shortest Processing Time</div>
+        <div style='font-size:22px; font-weight:700; color:#2A1A3D;'>WSPT Scheduler</div>
+        <div style='font-size:12px; color:#523573; margin-top:3px'>Weighted Shortest Processing Time</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -180,12 +181,10 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         
         st.markdown("<hr>", unsafe_allow_html=True)
         
-        # ─── VISUALISASI GANTT CHART (WARNA DISESUAIKAN TEMA SLIDE) ───────────
+        # ─── VISUALISASI GANTT CHART ──────────────────────────────────────────
         st.markdown("""<div class="section-header"><div class="section-title">📈 Gantt Chart Timeline (WSPT)</div></div>""", unsafe_allow_html=True)
         
         fig_gantt = go.Figure()
-        
-        # Menggunakan palet warna kustom bergradasi ungu-lavender-pink pastel-kuning cerah
         custom_colors = ['#D1B3E3', '#BFA2DB', '#A27BCA', '#8854C0', '#723CB5', '#5E29A4', '#FF79B4', '#FFD15C']
         
         for idx, row in df_wspt.iterrows():

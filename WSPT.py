@@ -4,63 +4,70 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 st.set_page_config(
-    page_title="Production Scheduling · WSPT Optimizer",
-    page_icon="⏱️",
+    page_title="WSPT Scheduler · Cute Edition",
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS (Warna Sidebar & Banner Lebih Muda) ───────────────────────────
+# ─── Custom CSS (Cute Style, Layout Clean, & Custom Palette) ─────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght=300;400;500;600&family=DM+Mono:wght=400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
-html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-/* Background utama aplikasi menggunakan warna ungu muda pastel cerah */
-.stApp { background: #F3EAFD; } 
+/* Mengubah font menjadi Quicksand agar memberikan impresi lebih lucu dan bulat */
+html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; }
 
-/* SIDEBAR: Diubah menjadi warna ungu pastel yang lebih muda, lembut, dan tidak pekat */
-[data-testid="stSidebar"] { background: #9B72C4 !important; border-right: 1px solid #B08CD6; }
-/* Warna teks di dalam sidebar disesuaikan agar tetap kontras dan terbaca */
-[data-testid="stSidebar"] * { color: #2A1A3D !important; }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #2A1A3D !important; }
+/* Base background aplikasi diubah menjadi putih bersih */
+.stApp { background: #FFFFFF; } 
 
-/* HERO BANNER / UPPERSIDE: Menggunakan gradasi ungu medium-muda yang cerah */
+/* SIDEBAR: Menggunakan kombinasi warna pastel lembut #accad7 */
+[data-testid="stSidebar"] { background: #accad7 !important; border-right: 2px rounded #1e7796; }
+[data-testid="stSidebar"] * { color: #124d61 !important; }
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #124d61 !important; font-weight: 700; }
+
+/* HERO BANNER: Menggunakan warna utama #124d61 dan #1e7796 dengan gaya rounded imut */
 .hero-banner {
-    background: linear-gradient(135deg, #8558B4 0%, #9B72C4 60%, #B28DE0 100%);
-    border-radius: 16px; padding: 36px 40px; margin-bottom: 28px;
-    box-shadow: 0 4px 12px rgba(133,88,180,0.1);
+    background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
+    border-radius: 24px; padding: 30px 35px; margin-bottom: 28px;
+    box-shadow: 0 8px 20px rgba(30,119,150,0.15);
 }
-.hero-title { font-size: 28px; font-weight: 600; color: #FFFFFF; margin: 0 0 6px; }
-.hero-sub { font-size: 14px; color: #F3EAFD; margin: 0; }
+.hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
+.hero-sub { font-size: 13px; color: #accad7; margin: 0; }
 
-/* Kartu metrik dengan background putih bersih */
+/* CARD SECTION: Lembar Per Section yang Bikin Tampilan Terpisah Rapi */
+.section-sheet {
+    background: #F4F8FA; border-radius: 20px; padding: 25px; margin-bottom: 25px;
+    border: 2px solid #accad7; box-shadow: 0 4px 10px rgba(172,202,215,0.2);
+}
+
+/* METRIC CARD STYLE */
 .metric-card {
-    background: white; border-radius: 12px; padding: 18px 20px;
-    border: 1px solid #D9C5EB; box-shadow: 0 2px 8px rgba(133,88,180,0.05);
+    background: white; border-radius: 16px; padding: 18px 20px;
+    border: 2px solid #accad7; box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+    text-align: center;
 }
-/* Border atas kartu menggunakan variasi warna aksen tema cerah */
-.metric-card.purple { border-top: 4px solid #8558B4; }
-.metric-card.lavender { border-top: 4px solid #B28DE0; }
-.metric-card.coral { border-top: 4px solid #FFD15C; } /* Aksen kuning lembut */
+.metric-card.primary { border-top: 5px solid #124d61; }
+.metric-card.secondary { border-top: 5px solid #1e7796; }
+.metric-card.accent { border-top: 5px solid #accad7; }
 
-.metric-label { font-size: 11px; font-weight: 600; color: #8558B4; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-.metric-value { font-size: 24px; font-weight: 600; color: #2A1A3D; font-family: 'DM Mono', monospace; }
-.metric-sub { font-size: 11px; color: #75529C; margin-top: 3px; }
+.metric-label { font-size: 11px; font-weight: 700; color: #1e7796; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 700; color: #124d61; font-family: 'DM Mono', monospace; }
+.metric-sub { font-size: 11px; color: #6b8894; margin-top: 3px; }
 
-.section-header { display: flex; align-items: center; gap: 10px; margin: 24px 0 14px; }
-.section-title { font-size: 16px; font-weight: 600; color: #2A1A3D; }
-.info-box { background: #FFFFFF; border-left: 4px solid #9B72C4; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #523573; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
-hr { border-color: #D9C5EB !important; }
+/* CUTE TITLE FORMAT */
+.section-title { font-size: 18px; font-weight: 700; color: #124d61; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-/* Customisasi warna tombol utama agar matching dengan ungu yang lebih muda */
+/* CUSTOM BUTTON */
 div.stButton > button:first-child {
-    background-color: #8558B4 !important;
-    color: white !important;
-    border: none !important;
+    background: linear-gradient(135deg, #1e7796 0%, #124d61 100%) !important;
+    color: white !important; font-weight: 600 !important;
+    border-radius: 12px !important; border: none !important;
+    padding: 10px 24px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
 }
 div.stButton > button:first-child:hover {
-    background-color: #7246A0 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(18,77,97,0.3);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -68,36 +75,38 @@ div.stButton > button:first-child:hover {
 # ─── Sidebar Input ────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style='padding: 20px 0 16px'>
-        <div style='font-size:22px; font-weight:700; color:#2A1A3D;'>WSPT Scheduler</div>
-        <div style='font-size:12px; color:#523573; margin-top:3px'>Weighted Shortest Processing Time</div>
+    <div style='padding: 10px 0 10px'>
+        <div style='font-size:24px; font-weight:700; color:#124d61;'>✨ WSPT Scheduler</div>
+        <div style='font-size:12px; color:#124d61; opacity:0.8; margin-top:3px'>Weighted Shortest Processing Time</div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<hr>", unsafe_allow_html=True)
-    st.write("⏱️ **Aturan WSPT:** Pekerjaan diurutkan berdasarkan rasio Waktu Proses dibagi Bobot ($t_j / W_j$) dari yang terkecil untuk meminimalkan *Total Weighted Flow Time*.")
+    st.markdown("<hr style='border-color: #124d61;'>", unsafe_allow_html=True)
+    st.markdown("### ⏱️ Aturan WSPT")
+    st.write("Pekerjaan diurutkan berdasarkan rasio Waktu Proses dibagi Bobot ($t_j / W_j$) dari yang terkecil untuk meminimalkan waktu alir tertimbang.")
 
 # ─── Hero Banner ──────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero-banner">
-    <div class="hero-title">⏱️ Weighted Shortest Processing Time (WSPT) Dashboard</div>
-    <div class="hero-sub">Optimasi urutan penjadwalan dengan pembobotan job tunggal (Single Machine Scheduling)</div>
+    <div class="hero-title">✨ Weighted Shortest Processing Time (WSPT) Dashboard</div>
+    <div class="hero-sub">Optimasi urutan penjadwalan dengan pembobotan job tunggal secara otomatis dan menggemaskan!</div>
 </div>
 """, unsafe_allow_html=True)
 
-# ─── Data Input Section ───────────────────────────────────────────────────────
+# ─── Section 1: Cara Penggunaan ───────────────────────────────────────────────
+st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📘 Cara Penggunaan Aplikasi</div>', unsafe_allow_html=True)
 st.markdown("""
-<div class="section-header">
-    <div class="section-title">📂 Input Data Job (Pekerjaan)</div>
-</div>
-""", unsafe_allow_html=True)
+1. **Isi Data Pekerjaan:** Pada tabel di bawah, masukkan nama pekerjaan, nilai Waktu Proses ($t_j$), dan Bobot ($W_j$) masing-masing job.
+2. **Tambah/Hapus Baris:** Anda bisa menambah baris baru dengan menekan tombol **`+`** di bagian bawah tabel data editor.
+3. **Mulai Optimasi:** Klik tombol **`▶️ Hitung Penjadwalan WSPT`** yang berwarna biru di bawah tabel.
+4. **Lihat Hasil:** Hasil perhitungan, metrik performa rata-rata, beserta visualisasi bagan urutan (*Gantt Chart*) akan langsung muncul dalam lembar terpisah.
+""")
+st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("""
-<div class="info-box">
-    💡 <b>Petunjuk:</b> Isikan daftar pekerjaan, waktu proses (Processing Time), dan Bobot (Weight). 
-    Data default di bawah disesuaikan dengan contoh soal pada gambar Anda (8 Jobs).
-</div>
-""", unsafe_allow_html=True)
+# ─── Section 2: Input Data Job (Lembar Persection) ───────────────────────────
+st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📂 Lembar Input Data Job</div>', unsafe_allow_html=True)
 
 # Default data sesuai gambar soal user
 init_data = pd.DataFrame([
@@ -117,11 +126,13 @@ edited_df = st.data_editor(
     use_container_width=True,
     column_config={
         "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True),
-        "Processing_Time": st.column_config.NumberColumn("Waktu Proses (Processing Time)", min_value=1, step=1, format="%d"),
-        "Weight": st.column_config.NumberColumn("Bobot (Weight)", min_value=1, step=1, format="%d")
+        "Processing_Time": st.column_config.NumberColumn("Waktu Proses ($t_j$)", min_value=1, step=1, format="%d"),
+        "Weight": st.column_config.NumberColumn("Bobot ($W_j$)", min_value=1, step=1, format="%d")
     }
 )
+st.markdown('</div>', unsafe_allow_html=True)
 
+# ─── Tombol Proses ────────────────────────────────────────────────────────────
 if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
     if edited_df is not None and len(edited_df) > 0:
         df_jobs = edited_df.dropna().copy()
@@ -151,21 +162,22 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         mean_flow_time = total_flow_time / num_jobs
         mean_weighted_flow_time = total_weighted_flow_time / total_weight
         
-        # ─── METRIC CARDS ─────────────────────────────────────────────────────
-        st.markdown("""<div class="section-header"><div class="section-title">📊 Performa Penjadwalan WSPT</div></div>""", unsafe_allow_html=True)
+        # ─── Section 3: Metrik Performa (Lembar Persection) ─────────────────────
+        st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📊 Lembar Ringkasan Performa Perhitungan</div>', unsafe_allow_html=True)
         
         m1, m2, m3 = st.columns(3)
         with m1:
-            st.markdown(f"""<div class="metric-card purple"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time}</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="metric-card primary"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time}</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
         with m2:
-            st.markdown(f"""<div class="metric-card lavender"><div class="metric-label">Rata-rata Flow Time</div><div class="metric-value">{mean_flow_time:.2f}</div><div class="metric-sub">{total_flow_time} / {num_jobs} (Total Job)</div></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="metric-card secondary"><div class="metric-label">Rata-rata Flow Time</div><div class="metric-value">{mean_flow_time:.2f}</div><div class="metric-sub">{total_flow_time} / {num_jobs} (Total Job)</div></div>""", unsafe_allow_html=True)
         with m3:
-            st.markdown(f"""<div class="metric-card coral"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f}</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} (Total Bobot)</div></div>""", unsafe_allow_html=True)
-            
-        st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown(f"""<div class="metric-card accent"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f}</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} (Total Bobot)</div></div>""", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        # ─── TABEL HASIL URUTAN WSPT ───────────────────────────────────────────
-        st.markdown("**Tabel Perhitungan Urutan Hasil Optimasi WSPT**")
+        # ─── Section 4: Tabel Urutan Hasil (Lembar Persection) ──────────────────
+        st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📋 Lembar Hasil Urutan Optimasi</div>', unsafe_allow_html=True)
         
         df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
         df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
@@ -177,15 +189,17 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         )
         
         job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
-        st.info(f"**Urutan yang dihasilkan (Berdasarkan nomor Job):** {job_order}")
+        st.success(f"📌 **Urutan Akhir yang Terbentuk:** {job_order}")
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        st.markdown("<hr>", unsafe_allow_html=True)
-        
-        # ─── VISUALISASI GANTT CHART ──────────────────────────────────────────
-        st.markdown("""<div class="section-header"><div class="section-title">📈 Gantt Chart Timeline (WSPT)</div></div>""", unsafe_allow_html=True)
+        # ─── Section 5: Visualisasi Gantt Chart (Lembar Persection) ───────────
+        st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📈 Lembar Visualisasi Timeline Gantt Chart</div>', unsafe_allow_html=True)
         
         fig_gantt = go.Figure()
-        custom_colors = ['#D1B3E3', '#BFA2DB', '#A27BCA', '#8854C0', '#723CB5', '#5E29A4', '#FF79B4', '#FFD15C']
+        
+        # Skema warna cerah menggemaskan berbasis palet biru-hijau pastel ceria
+        custom_colors = ['#accad7', '#87BDD8', '#5B9AA0', '#4F8A8B', '#1e7796', '#124d61', '#3A6073', '#709FB0']
         
         for idx, row in df_wspt.iterrows():
             fig_gantt.add_trace(go.Bar(
@@ -196,23 +210,25 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
                 name=row["Job_Name"],
                 text=f"{row['Job_Name']}",
                 textposition='inside',
-                marker=dict(color=custom_colors[idx % len(custom_colors)], line=dict(color='white', width=1.5))
+                marker=dict(color=custom_colors[idx % len(custom_colors)], line=dict(color='white', width=2))
             ))
             
         fig_gantt.update_layout(
             barmode='stack',
-            height=250,
-            plot_bgcolor="rgba(255,255,255,0.5)",
+            height=220,
+            plot_bgcolor="#FFFFFF",
             paper_bgcolor="rgba(0,0,0,0)",
             showlegend=True,
+            margin=dict(l=10, r=10, t=20, b=20),
             xaxis=dict(
-                title="Waktu Proses", 
-                gridcolor="#D2B4E8",
+                title="Sumbu Linimasa Waktu", 
+                gridcolor="#F0F4F6",
                 tickvals=[0] + list(df_wspt["Flow_Time"]),
             ),
             yaxis=dict(showticklabels=False)
         )
         st.plotly_chart(fig_gantt, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
             
     else:
         st.warning("Silakan masukkan data pekerjaan terlebih dahulu pada tabel.")

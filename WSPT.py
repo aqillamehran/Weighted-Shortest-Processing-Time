@@ -59,7 +59,7 @@ div.stButton > button:first-child {
     background: linear-gradient(135deg, #1e7796 0%, #124d61 100%) !important;
     color: white !important; font-weight: 600 !important;
     border-radius: 12px !important; border: none !important;
-    padding: 12px 24px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
+    padding: 10px 24px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
     width: 100%;
 }
 
@@ -99,15 +99,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Inisialisasi Session State untuk pemicu kalkulasi agar tidak otomatis terhitung di awal
+# Inisialisasi DataFrame Kosong sejak awal agar diisi mandiri oleh user
+if 'df_input_data' not in st.session_state:
+    st.session_state.df_input_data = pd.DataFrame(columns=["Job_Name", "Processing_Time", "Weight"])
+
+# Inisialisasi status pemicu kalkulasi agar Lembar 3 tidak langsung memunculkan hasil sebelum diproses
 if 'calculated' not in st.session_state:
     st.session_state.calculated = False
-
-# Inisialisasi awal tabel kosong agar diisi mandiri oleh pengguna
-if 'df_input_data' not in st.session_state:
-    st.session_state.df_input_data = pd.DataFrame([
-        {"Job_Name": "", "Processing_Time": None, "Weight": None}
-    ])
 
 # ─── LEMBAR 1: PANDUAN & ATURAN ───────────────────────────────────────────────
 st.markdown('<div id="lembar-1-panduan"></div>', unsafe_allow_html=True)
@@ -119,7 +117,7 @@ Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalk
 
 **📘 Cara Penggunaan Aplikasi:**
 1. Gulir ke bawah ke **Lembar 2** atau klik menu di sidebar kiri.
-2. Masukkan data secara manual di komponen tabel editor (gunakan tombol `+` di bawah tabel untuk menambah baris baru) atau pilih metode upload berkas `.csv`.
+2. Masukkan data secara manual pada tabel editor (tekan baris kosong untuk mengetik atau tombol `+` untuk menambah baris baru), atau gunakan opsi upload dokumen Excel/CSV.
 3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
 4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada **Lembar 3**.
 """)
@@ -132,7 +130,7 @@ st.markdown('<div class="section-title">📂 Lembar 2: Input Data Job (Pekerjaan
 
 input_method = st.radio(
     "Pilih Metode Memasukkan Data:",
-    ["Manual Input (Ketik di Tabel)", "Otomatis (Upload File CSV)"],
+    ["Manual Input (Ketik di Tabel)", "Otomatis (Upload File Excel / CSV)"],
     horizontal=True
 )
 
@@ -144,131 +142,138 @@ if "Manual Input" in input_method:
         num_rows="dynamic",
         use_container_width=True,
         column_config={
-            "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True, placeholder="contoh: Job 1"),
+            "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True),
             "Processing_Time": st.column_config.NumberColumn("Waktu Proses ($t_j$)", min_value=1, step=1, format="%d"),
             "Weight": st.column_config.NumberColumn("Bobot ($W_j$)", min_value=1, step=1, format="%d")
         }
     )
-    # Filter baris kosong yang belum diisi oleh pengguna agar tidak memicu error sistem
     st.session_state.df_input_data = edited_df
 else:
-    uploaded_file = st.file_uploader("Unggah file CSV Anda di sini (Pastikan judul kolom: Job_Name, Processing_Time, Weight)", type=["csv"])
+    uploaded_file = st.file_uploader("Unggah berkas Excel (.xlsx) atau CSV Anda di sini (Pastikan judul kolom: Job_Name, Processing_Time, Weight)", type=["csv", "xlsx"])
     if uploaded_file is not None:
         try:
-            uploaded_df = pd.read_csv(uploaded_file)
+            if uploaded_file.name.endswith('.csv'):
+                uploaded_df = pd.read_csv(uploaded_file)
+            else:
+                uploaded_df = pd.read_excel(uploaded_file)
+                
             st.session_state.df_input_data = uploaded_df
-            st.success("✅ File CSV Berhasil Dimuat!")
+            st.success("✅ Dokumen Berhasil Dimuat!")
             st.dataframe(uploaded_df, use_container_width=True)
         except Exception as e:
-            st.error(f"Gagal membaca file CSV, pastikan formatnya benar. Error: {e}")
+            st.error(f"Gagal membaca berkas, pastikan format nama kolom sesuai. Error: {e}")
 
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
-    st.session_state.calculated = True
+    if len(st.session_state.df_input_data.dropna()) > 0:
+        st.session_state.calculated = True
+        st.success("🎉 Perhitungan selesai! Silakan gulir ke bawah atau klik 'Lembar 3' pada sidebar untuk melihat hasil analisis Anda.")
+    else:
+        st.warning("Silakan isi data pekerjaan di tabel atau unggah berkas terlebih dahulu sebelum menghitung!")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ─── LEMBAR 3: HASIL PERHITUNGAN & DOWNLOAD ──────────────────────────────────
 st.markdown('<div id="lembar-3-hasil-perhitungan"></div>', unsafe_allow_html=True)
 
-# Lakukan penyaringan data masukan pengguna
-df_clean = st.session_state.df_input_data.copy()
-df_clean = df_clean.dropna(subset=["Processing_Time", "Weight"])
-df_clean = df_clean[df_clean["Job_Name"].str.strip() != ""]
-
-# Tampilkan halaman Lembar 3 dalam keadaan terkotak rapi
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📊 Lembar 3: Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
-
-if st.session_state.calculated and len(df_clean) > 0:
-    # ─── WSPT Calculation Logic (TIDAK BERUBAH) ───────────────────────────
-    df_clean["Rasio_tj_Wj"] = df_clean["Processing_Time"] / df_clean["Weight"]
-    df_wspt = df_clean.sort_values(by=["Rasio_tj_Wj", "Processing_Time"], ascending=[True, True]).reset_index(drop=True)
+# Hasil hanya akan di-render jika tombol hitung sudah pernah ditekan dan data valid tersedia
+if st.session_state.calculated:
+    df_jobs = st.session_state.df_input_data.dropna().copy()
     
-    start_times = []
-    flow_times = []
-    current_time = 0
-    
-    for idx, row in df_wspt.iterrows():
-        start_times.append(current_time)
-        current_time += int(row["Processing_Time"])
-        flow_times.append(current_time)
+    if len(df_jobs) > 0:
+        # ─── WSPT Calculation Logic (TIDAK BERUBAH) ───────────────────────
+        df_jobs["Rasio_tj_Wj"] = df_jobs["Processing_Time"] / df_jobs["Weight"]
+        df_wspt = df_jobs.sort_values(by=["Rasio_tj_Wj", "Processing_Time"], ascending=[True, True]).reset_index(drop=True)
         
-    df_wspt["Start_Time"] = start_times
-    df_wspt["Flow_Time"] = flow_times
-    df_wspt["Weighted_Flow_Time"] = df_wspt["Weight"] * df_wspt["Flow_Time"]
-    
-    total_flow_time = df_wspt["Flow_Time"].sum()
-    total_weighted_flow_time = df_wspt["Weighted_Flow_Time"].sum()
-    total_weight = df_wspt["Weight"].sum()
-    num_jobs = len(df_wspt)
-    
-    mean_flow_time = total_flow_time / num_jobs
-    mean_weighted_flow_time = total_weighted_flow_time / total_weight
-
-    # 1. Ringkasan Metrik Angka
-    m1, m2, m3 = st.columns(3)
-    with m1:
-        st.markdown(f"""<div class="metric-card primary"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time}</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
-    with m2:
-        st.markdown(f"""<div class="metric-card secondary"><div class="metric-label">Rata-rata Flow Time</div><div class="metric-value">{mean_flow_time:.2f}</div><div class="metric-sub">{total_flow_time} / {num_jobs} (Total Job)</div></div>""", unsafe_allow_html=True)
-    with m3:
-        st.markdown(f"""<div class="metric-card accent"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f}</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} (Total Bobot)</div></div>""", unsafe_allow_html=True)
-    
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("**Tabel Perhitungan Urutan Hasil Optimasi WSPT (Dijabarkan):**")
-    
-    # 2. Tabel Penjabaran Detail
-    df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
-    df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
-    df_display.columns = ["Job", "t_j / W_j", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
-    
-    st.dataframe(df_display.style.format({"t_j / W_j": "{:.1f}"}), use_container_width=True)
-    
-    job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
-    st.success(f"📌 **Urutan Akhir yang Terbentuk:** {job_order}")
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("**Visualisasi Timeline Gantt Chart:**")
-    
-    # 3. Visualisasi Gantt Chart (Plotly menyediakan tombol unduh gambar bawaan)
-    fig_gantt = go.Figure()
-    custom_colors = ['#accad7', '#87BDD8', '#5B9AA0', '#4F8A8B', '#1e7796', '#124d61', '#3A6073', '#709FB0']
-    
-    for idx, row in df_wspt.iterrows():
-        fig_gantt.add_trace(go.Bar(
-            x=[row["Processing_Time"]],
-            y=["Mesin Tunggal"],
-            base=[row["Start_Time"]],
-            orientation='h',
-            name=row["Job_Name"],
-            text=f"{row['Job_Name']}",
-            textposition='inside',
-            marker=dict(color=custom_colors[idx % len(custom_colors)], line=dict(color='white', width=2))
-        ))
+        start_times = []
+        flow_times = []
+        current_time = 0
         
-    fig_gantt.update_layout(
-        barmode='stack', height=220, plot_bgcolor="#FFFFFF", paper_bgcolor="rgba(0,0,0,0)",
-        showlegend=True, margin=dict(l=10, r=10, t=20, b=20),
-        xaxis=dict(title="Sumbu Linimasa Waktu", gridcolor="#F0F4F6", tickvals=[0] + list(df_wspt["Flow_Time"])),
-        yaxis=dict(showticklabels=False)
-    )
-    st.plotly_chart(fig_gantt, use_container_width=True)
-    
-    st.markdown("""
-    💡 *Tip: Untuk menyimpan Gantt Chart menjadi gambar (.png), arahkan kursor Anda ke area kanan atas grafik tersebut, lalu klik ikon kamera (**"Download plot as a png"**).*
-    """)
-    
-    # 4. Tombol Download Tabel Hasil
-    csv_buffer = BytesIO()
-    df_display.to_csv(csv_buffer, index=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.download_button(
-        label="📥 Unduh Hasil Tabel Penjadwalan (.CSV)",
-        data=csv_buffer.getvalue(),
-        file_name="hasil_penjadwalan_wspt.csv",
-        mime="text/csv"
-    )
+        for idx, row in df_wspt.iterrows():
+            start_times.append(current_time)
+            current_time += int(row["Processing_Time"])
+            flow_times.append(current_time)
+            
+        df_wspt["Start_Time"] = start_times
+        df_wspt["Flow_Time"] = flow_times
+        df_wspt["Weighted_Flow_Time"] = df_wspt["Weight"] * df_wspt["Flow_Time"]
+        
+        total_flow_time = df_wspt["Flow_Time"].sum()
+        total_weighted_flow_time = df_wspt["Weighted_Flow_Time"].sum()
+        total_weight = df_wspt["Weight"].sum()
+        num_jobs = len(df_wspt)
+        
+        mean_flow_time = total_flow_time / num_jobs
+        mean_weighted_flow_time = total_weighted_flow_time / total_weight
+
+        st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📊 Lembar 3: Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
+        
+        # 1. Ringkasan Metrik Angka
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.markdown(f"""<div class="metric-card primary"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time}</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
+        with m2:
+            st.markdown(f"""<div class="metric-card secondary"><div class="metric-label">Rata-rata Flow Time</div><div class="metric-value">{mean_flow_time:.2f}</div><div class="metric-sub">{total_flow_time} / {num_jobs} (Total Job)</div></div>""", unsafe_allow_html=True)
+        with m3:
+            st.markdown(f"""<div class="metric-card accent"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f}</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} (Total Bobot)</div></div>""", unsafe_allow_html=True)
+        
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("**Tabel Perhitungan Urutan Hasil Optimasi WSPT (Dijabarkan):**")
+        
+        # 2. Tabel Penjabaran Detail
+        df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
+        df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
+        df_display.columns = ["Job", "t_j / W_j", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
+        
+        st.dataframe(df_display.style.format({"t_j / W_j": "{:.1f}"}), use_container_width=True)
+        
+        job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
+        st.success(f"📌 **Urutan Akhir yang Terbentuk:** {job_order}")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("**Visualisasi Timeline Gantt Chart:**")
+        
+        # 3. Visualisasi Gantt Chart 
+        fig_gantt = go.Figure()
+        custom_colors = ['#accad7', '#87BDD8', '#5B9AA0', '#4F8A8B', '#1e7796', '#124d61', '#3A6073', '#709FB0']
+        
+        for idx, row in df_wspt.iterrows():
+            fig_gantt.add_trace(go.Bar(
+                x=[row["Processing_Time"]],
+                y=["Mesin Tunggal"],
+                base=[row["Start_Time"]],
+                orientation='h',
+                name=row["Job_Name"],
+                text=f"{row['Job_Name']}",
+                textposition='inside',
+                marker=dict(color=custom_colors[idx % len(custom_colors)], line=dict(color='white', width=2))
+            ))
+            
+        fig_gantt.update_layout(
+            barmode='stack', height=220, plot_bgcolor="#FFFFFF", paper_bgcolor="rgba(0,0,0,0)",
+            showlegend=True, margin=dict(l=10, r=10, t=20, b=20),
+            xaxis=dict(title="Sumbu Linimasa Waktu", gridcolor="#F0F4F6", tickvals=[0] + list(df_wspt["Flow_Time"])),
+            yaxis=dict(showticklabels=False)
+        )
+        st.plotly_chart(fig_gantt, use_container_width=True)
+        
+        st.markdown("""
+        📸 *📸 **Tips Mengunduh Chart Menjadi Gambar:** Arahkan kursor tetikus Anda ke area grafik di atas, lalu klik ikon kamera bertuliskan **"Download plot as a png"** di bilah pojok kanan atas grafik.*
+        """)
+        
+        # 4. Tombol Download Hasil CSV
+        csv_buffer = BytesIO()
+        df_display.to_csv(csv_buffer, index=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.download_button(
+            label="📥 Unduh Berkas Tabel Penjadwalan (.CSV)",
+            data=csv_buffer.getvalue(),
+            file_name="hasil_penjadwalan_wspt.csv",
+            mime="text/csv"
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 else:
-    st.info("Waiting for Data... Silakan isi data pekerjaan di Lembar 2, lalu klik tombol 'Hitung Penjadwalan WSPT' untuk menampilkan hasil analisa di sini.")
-
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sheet" style="text-align: center; color: #6b8894; padding: 40px 20px;">', unsafe_allow_html=True)
+    st.markdown('### 📊 Lembar 3: Hasil Perhitungan & Grafik Linimasa', unsafe_allow_html=True)
+    st.write("Belum ada data yang diproses. Silakan isi data di Lembar 2 dan klik tombol 'Hitung Penjadwalan WSPT' terlebih dahulu untuk memunculkan penjabaran hasil di sini.")
+    st.markdown('</div>', unsafe_allow_html=True)

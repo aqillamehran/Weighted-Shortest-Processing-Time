@@ -24,14 +24,30 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 [data-testid="stSidebar"] * { color: #124d61 !important; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #124d61 !important; font-weight: 700; }
 
-/* HERO BANNER */
-.hero-banner {
-    background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
-    border-radius: 24px; padding: 30px 35px; margin-bottom: 25px;
-    box-shadow: 0 8px 20px rgba(30,119,150,0.15);
+/* HERO BASE CONTAINER BOX (Kotak Melengkung Atas Sebagai Basis Utama) */
+.hero-container-box {
+    background-color: #F4F8FA;
+    border: 2px solid #accad7;
+    border-radius: 24px;
+    padding: 30px 35px;
+    margin-bottom: 35px;
+    box-shadow: 0 6px 15px rgba(172,202,215,0.25);
 }
-.hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
-.hero-sub { font-size: 13px; color: #accad7; margin: 0; }
+.hero-box-title { 
+    font-size: 26px; 
+    font-weight: 700; 
+    color: #124d61; 
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.hero-box-subtitle { 
+    font-size: 14px; 
+    color: #1e7796; 
+    margin-bottom: 20px;
+    font-weight: 500;
+}
 
 /* CARD SECTION (KOTAK-KOTAK LEMBAR PEMBAHASAN) */
 .section-sheet {
@@ -98,29 +114,23 @@ with st.sidebar:
     st.markdown('<a class="nav-link" href="#input-data-job">📂 Input Data Job</a>', unsafe_allow_html=True)
     st.markdown('<a class="nav-link" href="#hasil-perhitungan-grafik">📊 Hasil Perhitungan & Grafik Linimasa</a>', unsafe_allow_html=True)
 
-# ─── Hero Banner ──────────────────────────────────────────────────────────────
+# ─── KOTAK UTAMA (BASE CONTAINER): ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────
+st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
 st.markdown("""
-<div class="hero-banner">
-    <div class="hero-title">✨ Weighted Shortest Processing Time (WSPT) Dashboard</div>
-    <div class="hero-sub">Sistem Optimasi Urutan Penjadwalan Kerja dalam Lembar Terkotak Nyaman</div>
+<div class="hero-container-box">
+    <div class="hero-box-title">📖 Aturan WSPT & Petunjuk Penggunaan</div>
+    <div class="hero-box-subtitle">Sistem Optimasi Urutan Penjadwalan Kerja dalam Kotak Kontainer Pembahasan Utama</div>
+    <hr style="border: 0; border-top: 1px solid #accad7; margin-bottom: 20px;">
+    <p>⚙️ <b>Aturan WSPT:</b><br>
+    Metode <b>WSPT (Weighted Shortest Processing Time)</b> digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (<i>Single Machine Scheduling</i>). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai <b>Waktu Proses dibagi dengan Bobot Kepentingan</b> ($t_j / W_j$) dari urutan yang <b>paling kecil hingga terbesar</b>. Metode ini terbukti meminimalkan <i>Total Weighted Flow Time</i>.</p>
+    <br>
+    <p>📘 <b>Cara Penggunaan Aplikasi:</b><br>
+    1. Gulir ke bawah ke lembar <b>Input Data Job</b> atau klik tombol pintasan di sidebar kiri.<br>
+    2. Masukkan data secara manual di tabel editor atau pilih metode upload dari file berkas Excel atau CSV.<br>
+    3. Tekan tombol <b>▶️ Hitung Penjadwalan WSPT</b>.<br>
+    4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar <b>Hasil Perhitungan & Grafik Linimasa</b>.</p>
 </div>
 """, unsafe_allow_html=True)
-
-# ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────────────────────────
-st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
-st.markdown("""
-**⚙️ Aturan WSPT:**
-Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (*Single Machine Scheduling*). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai **Waktu Proses dibagi dengan Bobot Kepentingan** ($t_j / W_j$) dari urutan yang **paling kecil hingga terbesar**. Metode ini terbukti meminimalkan *Total Weighted Flow Time*.
-
-**📘 Cara Penggunaan Aplikasi:**
-1. Gulir ke bawah ke lembar **Input Data Job** atau klik tombol pintasan di sidebar kiri.
-2. Masukkan data secara manual di tabel editor atau pilih metode upload dari file berkas Excel atau CSV.
-3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
-4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar **Hasil Perhitungan & Grafik Linimasa**.
-""")
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)

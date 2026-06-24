@@ -11,38 +11,67 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS (Cute Style, Clean Base, & Custom Palette) ─────────────────
+# ─── Custom CSS (Cute Style, Colorful & Compact Base) ──────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght=400;500;600;700&family=DM+Mono:wght=400;500&display=swap');
 
 html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavior: smooth; }
-.stApp { background: #FFFFFF; } 
+/* Membuat background aplikasi lebih berwarna pastel lembut */
+.stApp { background: #F4F8FA; } 
 
 /* SIDEBAR STYLE */
 [data-testid="stSidebar"] { background: #accad7 !important; border-right: 2px solid #1e7796; }
 [data-testid="stSidebar"] * { color: #124d61 !important; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #124d61 !important; font-weight: 700; }
 
-/* HERO BANNER */
+/* HERO BANNER - Dibuat lebih ringkas padding-nya */
 .hero-banner {
     background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
-    border-radius: 24px; padding: 30px 35px; margin-bottom: 25px;
-    box-shadow: 0 8px 20px rgba(30,119,150,0.15);
+    border-radius: 16px; padding: 20px 25px; margin-bottom: 20px;
+    box-shadow: 0 6px 15px rgba(30,119,150,0.15);
 }
-.hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
-.hero-sub { font-size: 13px; color: #accad7; margin: 0; }
+.hero-title { font-size: 24px; font-weight: 700; color: #FFFFFF; margin: 0 0 4px; }
+.hero-sub { font-size: 12px; color: #accad7; margin: 0; }
 
-/* CARD SECTION (KOTAK-KOTAK LEMBAR PEMBAHASAN) */
-.section-sheet {
-    background: #F4F8FA; border-radius: 20px; padding: 25px; margin-bottom: 35px;
-    border: 2px solid #accad7; box-shadow: 0 4px 10px rgba(172,202,215,0.2);
+/* KOTAK CONTAINER DENGAN HEADER BAR BERWARNA (Mengurangi Ruang Kosong) */
+.custom-card-container {
+    background-color: #FFFFFF;
+    border: 2px solid #accad7;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 10px rgba(172, 202, 215, 0.2);
 }
-.section-title { font-size: 20px; font-weight: 700; color: #124d61; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+/* BAR BERWARNA UNTUK JUDUL YANG MENYATU */
+.custom-card-header {
+    background: linear-gradient(90deg, #124d61 0%, #1e7796 100%);
+    padding: 12px 20px;
+    color: #FFFFFF !important;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid #accad7;
+}
+
+/* KONTEN UTAMA DI DALAM KOTAK (Padding dioptimalkan agar padat) */
+.custom-card-body {
+    padding: 20px;
+}
+
+/* WARNA UNTUK TABEL INPUT DATA EDITOR */
+[data-testid="stDataEditor"] {
+    background-color: #F4F8FA !important;
+    border: 1px solid #accad7 !important;
+    border-radius: 10px !important;
+}
 
 /* METRIC CARD STYLE */
 .metric-card {
-    background: white; border-radius: 16px; padding: 18px 20px;
+    background: white; border-radius: 14px; padding: 14px 16px;
     border: 2px solid #accad7; box-shadow: 0 4px 8px rgba(0,0,0,0.02);
     text-align: center;
 }
@@ -50,26 +79,27 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 .metric-card.secondary { border-top: 5px solid #1e7796; }
 .metric-card.accent { border-top: 5px solid #accad7; }
 
-.metric-label { font-size: 11px; font-weight: 700; color: #1e7796; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-.metric-value { font-size: 24px; font-weight: 700; color: #124d61; font-family: 'DM Mono', monospace; }
-.metric-sub { font-size: 11px; color: #6b8894; margin-top: 3px; }
+.metric-label { font-size: 11px; font-weight: 700; color: #1e7796; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 700; color: #124d61; font-family: 'DM Mono', monospace; }
+.metric-sub { font-size: 11px; color: #6b8894; margin-top: 2px; }
 
 /* BUTTON STYLE */
 div.stButton > button:first-child {
     background: linear-gradient(135deg, #1e7796 0%, #124d61 100%) !important;
     color: white !important; font-weight: 600 !important;
-    border-radius: 12px !important; border: none !important;
-    padding: 10px 24px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
+    border-radius: 10px !important; border: none !important;
+    padding: 8px 20px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
     width: 100%;
 }
 
 /* LINK NAVIGATION SIDEBAR */
 .nav-link {
-    display: block; padding: 12px 15px; margin: 8px 0;
+    display: block; padding: 10px 12px; margin: 6px 0;
     background-color: #ffffff; color: #124d61 !important;
     text-decoration: none !important; font-weight: 600;
-    border-radius: 10px; border: 1px solid #1e7796;
+    border-radius: 8px; border: 1px solid #1e7796;
     transition: all 0.2s ease; text-align: center;
+    font-size: 13px;
 }
 .nav-link:hover {
     background-color: #1e7796; color: #ffffff !important;
@@ -87,12 +117,12 @@ if 'calculated' not in st.session_state:
 # ─── SIDEBAR: Navigasi Tanpa Label Angka (Scroll ke Bawah) ────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style='padding: 10px 0 10px'>
-        <div style='font-size:24px; font-weight:700; color:#124d61;'>✨ WSPT Menu</div>
-        <div style='font-size:12px; color:#124d61; opacity:0.8; margin-top:3px'>Klik untuk berpindah halaman:</div>
+    <div style='padding: 5px 0 5px'>
+        <div style='font-size:22px; font-weight:700; color:#124d61;'>✨ WSPT Menu</div>
+        <div style='font-size:12px; color:#124d61; opacity:0.8; margin-top:2px'>Klik untuk berpindah halaman:</div>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("<hr style='border-color: #124d61;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color: #124d61; margin-top: 5px; margin-bottom: 10px;'>", unsafe_allow_html=True)
     
     st.markdown('<a class="nav-link" href="#aturan-wspt-panduan">📖 Aturan WSPT & Petunjuk Penggunaan</a>', unsafe_allow_html=True)
     st.markdown('<a class="nav-link" href="#input-data-job">📂 Input Data Job</a>', unsafe_allow_html=True)
@@ -108,8 +138,12 @@ st.markdown("""
 
 # ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────────────────────────
 st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="custom-card-container">
+    <div class="custom-card-header">📖 Aturan WSPT & Petunjuk Penggunaan</div>
+    <div class="custom-card-body">
+""", unsafe_allow_html=True)
+
 st.markdown("""
 **⚙️ Aturan WSPT:**
 Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengurutkan pekerjaan (job) dengan memprioritaskan pekerjaan yang memiliki rasio waktu pemrosesan terhadap bobot kepentingan terkecil terlebih dahulu.
@@ -120,12 +154,19 @@ Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengurutkan 
 3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
 4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar **Hasil Perhitungan & Grafik Linimasa**.
 """)
-st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("""
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📂 Input Data Job</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="custom-card-container">
+    <div class="custom-card-header">📂 Input Data Job</div>
+    <div class="custom-card-body">
+""", unsafe_allow_html=True)
 
 input_method = st.radio(
     "Pilih Metode Memasukkan Data:",
@@ -133,9 +174,20 @@ input_method = st.radio(
     horizontal=True
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
 if "Manual Input" in input_method:
+    # Kotak interaktif penentu jumlah baris awal pengerjaan job
+    num_rows_input = st.number_input("Masukkan jumlah baris Job awal:", min_value=1, max_value=50, value=len(st.session_state.df_input_data), step=1)
+    
+    if num_rows_input != len(st.session_state.df_input_data):
+        current_len = len(st.session_state.df_input_data)
+        if num_rows_input > current_len:
+            extra_df = pd.DataFrame([{"Job_Name": "", "Processing_Time": None, "Weight": None} for _ in range(num_rows_input - current_len)])
+            st.session_state.df_input_data = pd.concat([st.session_state.df_input_data, extra_df], ignore_index=True)
+        else:
+            st.session_state.df_input_data = st.session_state.df_input_data.iloc[:num_rows_input].reset_index(drop=True)
+
     edited_df = st.data_editor(
         st.session_state.df_input_data,
         num_rows="dynamic",
@@ -162,7 +214,7 @@ else:
         except Exception as e:
             st.error(f"Gagal membaca file berkas, pastikan format kolom benar. Error: {e}")
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
     valid_data = st.session_state.df_input_data.dropna(subset=["Job_Name", "Processing_Time", "Weight"])
     if len(valid_data) > 0:
@@ -170,12 +222,15 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         st.success("🎉 Berhasil dihitung! Silakan gulir ke bawah untuk melihat hasil pengerjaan.")
     else:
         st.warning("Mohon masukkan setidaknya satu data pengerjaan job secara lengkap terlebih dahulu!")
-st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("""
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ─── KOTAK 3: HASIL PERHITUNGAN & GANTTCHART (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
-# Bersihkan baris-baris kosong sebelum menjalankan formula pengerjaan
 df_jobs = st.session_state.df_input_data.dropna(subset=["Job_Name", "Processing_Time", "Weight"]).copy()
 
 if st.session_state.calculated and len(df_jobs) > 0:
@@ -204,8 +259,11 @@ if st.session_state.calculated and len(df_jobs) > 0:
     mean_flow_time = total_flow_time / num_jobs
     mean_weighted_flow_time = total_weighted_flow_time / total_weight
 
-    st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">📊 Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="custom-card-container">
+        <div class="custom-card-header">📊 Hasil Perhitungan & Gantchart</div>
+        <div class="custom-card-body">
+    """, unsafe_allow_html=True)
     
     # 1. Tampilan Ringkasan Metrik
     m1, m2, m3 = st.columns(3)
@@ -216,7 +274,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
     with m3:
         st.markdown(f"""<div class="metric-card accent"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f}</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} Total Bobot</div></div>""", unsafe_allow_html=True)
     
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     st.markdown("**Tabel Perhitungan Urutan Hasil Optimasi WSPT (Dijabarkan):**")
     
     # 2. Tabel Detail Hasil Penjadwalan
@@ -224,12 +282,13 @@ if st.session_state.calculated and len(df_jobs) > 0:
     df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
     df_display.columns = ["Job", "Rasio", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
     
-    st.dataframe(df_display.style.format({"t_j / W_j": "{:.1f}"}), use_container_width=True)
+    # Format rasio diatur 2 angka di belakang koma (.2f)
+    st.dataframe(df_display.style.format({"Rasio": "{:.2f}"}), use_container_width=True)
     
     job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
     st.success(f"📌 **Urutan Akhir yang Terbentuk:** {job_order}")
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
     st.markdown("**Visualisasi Timeline Gantt Chart:**")
     
     # 3. Gantt Chart Interaktif (Plotly)
@@ -249,8 +308,8 @@ if st.session_state.calculated and len(df_jobs) > 0:
         ))
         
     fig_gantt.update_layout(
-        barmode='stack', height=220, plot_bgcolor="#FFFFFF", paper_bgcolor="rgba(0,0,0,0)",
-        showlegend=True, margin=dict(l=10, r=10, t=20, b=20),
+        barmode='stack', height=200, plot_bgcolor="#FFFFFF", paper_bgcolor="rgba(0,0,0,0)",
+        showlegend=True, margin=dict(l=10, r=10, t=15, b=15),
         xaxis=dict(title="Sumbu Linimasa Waktu", gridcolor="#F0F4F6", tickvals=[0] + list(df_wspt["Flow_Time"])),
         yaxis=dict(showticklabels=False)
     )
@@ -258,15 +317,21 @@ if st.session_state.calculated and len(df_jobs) > 0:
     
     # 4. Petunjuk Download Grafik Gantt Chart sebagai Gambar (.png)
     st.markdown("""
-    <div style="background-color: #EBF3F5; border-left: 4px solid #1e7796; padding: 16px; border-radius: 8px; margin-top: 10px;">
-        📸 <b>Tombol Download Gambar Gantt Chart Bawaan:</b><br>
-        Untuk mengunduh grafik Gantt Chart di atas menjadi file gambar png, silakan gerakkan kursor mouse Anda ke area grafik batang di atas. Menu toolbar kecil akan muncul di <b>pojok kanan atas grafik</b>, silakan klik ikon berlambang <b>Kamera (Download plot as a png)</b> untuk mengunduhnya secara instan.
+    <div style="background-color: #EBF3F5; border-left: 4px solid #1e7796; padding: 12px; border-radius: 8px; margin-top: 5px; font-size: 13px;">
+        📸 <b>Tombol Download Gambar Gantt Chart Bawaan:</b> Gerakkan kursor mouse ke area grafik batang di atas. Menu toolbar kecil akan muncul di <b>pojok kanan atas grafik</b>, silakan klik ikon berlambang <b>Kamera (Download plot as a png)</b> untuk mengunduhnya secara instan.
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 else:
-    st.markdown('<div class="section-sheet" style="text-align: center; color: #6b8894; padding: 45px 20px;">', unsafe_allow_html=True)
-    st.markdown('### 📊 Hasil Perhitungan & Grafik Linimasa', unsafe_allow_html=True)
-    st.write("Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="custom-card-container">
+        <div class="custom-card-header">📊 Hasil Perhitungan & Gantchart</div>
+        <div class="custom-card-body" style="text-align: center; color: #6b8894; padding: 35px 20px;">
+            Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)

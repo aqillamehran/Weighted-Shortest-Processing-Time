@@ -33,12 +33,33 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 .hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
 .hero-sub { font-size: 13px; color: #accad7; margin: 0; }
 
-/* CARD SECTION (KOTAK-KOTAK LEMBAR PEMBAHASAN) */
-.section-sheet {
-    background: #F4F8FA; border-radius: 20px; padding: 25px; margin-bottom: 35px;
-    border: 2px solid #accad7; box-shadow: 0 4px 10px rgba(172,202,215,0.2);
+/* KOTAK CONTAINER DENGAN HEADER BAR BIRU DI ATASNYA */
+.custom-card-container {
+    background-color: #FFFFFF;
+    border: 2px solid #accad7;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 35px;
+    box-shadow: 0 6px 14px rgba(172, 202, 215, 0.15);
 }
-.section-title { font-size: 20px; font-weight: 700; color: #124d61; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+/* BAR BIRU UNTUK JUDUL */
+.custom-card-header {
+    background: linear-gradient(90deg, #124d61 0%, #1e7796 100%);
+    padding: 14px 25px;
+    color: #FFFFFF !important;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #accad7;
+}
+
+/* KONTEN DI DALAM KOTAK */
+.custom-card-body {
+    padding: 25px;
+}
 
 /* METRIC CARD STYLE */
 .metric-card {
@@ -96,7 +117,7 @@ with st.sidebar:
     
     st.markdown('<a class="nav-link" href="#aturan-wspt-panduan">📖 Aturan WSPT & Petunjuk Penggunaan</a>', unsafe_allow_html=True)
     st.markdown('<a class="nav-link" href="#input-data-job">📂 Input Data Job</a>', unsafe_allow_html=True)
-    st.markdown('<a class="nav-link" href="#hasil-perhitungan-grafik">📊 Hasil Perhitungan & Gantchart</a>', unsafe_allow_html=True)
+    st.markdown('<a class="nav-link" href="#hasil-perhitungan-grafik">📊 Hasil Perhitungan & Grafik Linimasa</a>', unsafe_allow_html=True)
 
 # ─── Hero Banner ──────────────────────────────────────────────────────────────
 st.markdown("""
@@ -108,11 +129,15 @@ st.markdown("""
 
 # ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────────────────────────
 st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="custom-card-container">
+    <div class="custom-card-header">📖 Aturan WSPT & Petunjuk Penggunaan</div>
+    <div class="custom-card-body">
+""", unsafe_allow_html=True)
+
 st.markdown("""
 **⚙️ Aturan WSPT:**
-Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengurutkan pekerjaan (job) dengan memprioritaskan pekerjaan yang memiliki rasio waktu pemrosesan terhadap bobot kepentingan terkecil terlebih dahulu.
+Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (*Single Machine Scheduling*). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai **Waktu Proses dibagi dengan Bobot Kepentingan** ($t_j / W_j$) dari urutan yang **paling kecil hingga terbesar**. Metode ini terbukti meminimalkan *Total Weighted Flow Time*.
 
 **📘 Cara Penggunaan Aplikasi:**
 1. Gulir ke bawah ke lembar **Input Data Job** atau klik tombol pintasan di sidebar kiri.
@@ -120,16 +145,24 @@ Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengurutkan 
 3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
 4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar **Hasil Perhitungan & Grafik Linimasa**.
 """)
-st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("""
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 
 # ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📂 Input Data Job</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="custom-card-container">
+    <div class="custom-card-header">📂 Input Data Job (Pekerjaan)</div>
+    <div class="custom-card-body">
+""", unsafe_allow_html=True)
 
 input_method = st.radio(
     "Pilih Metode Memasukkan Data:",
-    ["Manual Input", "Otomatis (Upload File CSV)"],
+    ["Manual Input (Ketik di Tabel)", "Otomatis (Upload File Excel / CSV)"],
     horizontal=True
 )
 
@@ -141,9 +174,9 @@ if "Manual Input" in input_method:
         num_rows="dynamic",
         use_container_width=True,
         column_config={
-            "Job_Name": st.column_config.TextColumn("Nama Job", required=True),
-            "Processing_Time": st.column_config.NumberColumn("Waktu Proses", min_value=1, step=1, format="%d"),
-            "Weight": st.column_config.NumberColumn("Bobot", min_value=1, step=1, format="%d")
+            "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True),
+            "Processing_Time": st.column_config.NumberColumn("Waktu Proses ($t_j$)", min_value=1, step=1, format="%d"),
+            "Weight": st.column_config.NumberColumn("Bobot ($W_j$)", min_value=1, step=1, format="%d")
         },
         key="editor_grid"
     )
@@ -170,9 +203,14 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         st.success("🎉 Berhasil dihitung! Silakan gulir ke bawah untuk melihat hasil pengerjaan.")
     else:
         st.warning("Mohon masukkan setidaknya satu data pengerjaan job secara lengkap terlebih dahulu!")
-st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── KOTAK 3: HASIL PERHITUNGAN & GANTTCHART (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
+st.markdown("""
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# ─── KOTAK 3: HASIL PERHITUNGAN & GRAFIK (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
 # Bersihkan baris-baris kosong sebelum menjalankan formula pengerjaan
@@ -204,8 +242,11 @@ if st.session_state.calculated and len(df_jobs) > 0:
     mean_flow_time = total_flow_time / num_jobs
     mean_weighted_flow_time = total_weighted_flow_time / total_weight
 
-    st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">📊 Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="custom-card-container">
+        <div class="custom-card-header">📊 Hasil Perhitungan & Grafik Linimasa</div>
+        <div class="custom-card-body">
+    """, unsafe_allow_html=True)
     
     # 1. Tampilan Ringkasan Metrik
     m1, m2, m3 = st.columns(3)
@@ -222,7 +263,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
     # 2. Tabel Detail Hasil Penjadwalan
     df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
     df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
-    df_display.columns = ["Job", "Rasio", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
+    df_display.columns = ["Job", "t_j / W_j", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
     
     st.dataframe(df_display.style.format({"t_j / W_j": "{:.1f}"}), use_container_width=True)
     
@@ -264,9 +305,16 @@ if st.session_state.calculated and len(df_jobs) > 0:
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 else:
-    st.markdown('<div class="section-sheet" style="text-align: center; color: #6b8894; padding: 45px 20px;">', unsafe_allow_html=True)
-    st.markdown('### 📊 Hasil Perhitungan & Grafik Linimasa', unsafe_allow_html=True)
-    st.write("Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="custom-card-container">
+        <div class="custom-card-header">📊 Hasil Perhitungan & Grafik Linimasa</div>
+        <div class="custom-card-body" style="text-align: center; color: #6b8894; padding: 45px 20px;">
+            Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)

@@ -61,12 +61,11 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
     padding: 25px;
 }
 
-/* MEWARNAI AREA STRIP/BACKGROUND TABEL EDITOR DATA INPUT */
+/* WARNA UNTUK TABEL INPUT DATA EDITOR */
 [data-testid="stDataEditor"] {
     background-color: #F4F8FA !important;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px dashed #1e7796;
+    border: 1px solid #accad7 !important;
+    border-radius: 10px !important;
 }
 
 /* METRIC CARD STYLE */
@@ -108,7 +107,7 @@ div.stButton > button:first-child {
 
 # ─── INISIALISASI DATA KOSONG (Fix Bug Baris & Auto Clear) ───────────────────
 if 'df_input_data' not in st.session_state:
-    st.session_state.df_input_data = pd.DataFrame([{"Job_Name": f"Job {i+1}", "Processing_Time": None, "Weight": None} for i in range(3)])
+    st.session_state.df_input_data = pd.DataFrame([{"Job_Name": "", "Processing_Time": None, "Weight": None}])
 
 if 'calculated' not in st.session_state:
     st.session_state.calculated = False
@@ -159,7 +158,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 2: INPUT DATA JOB (DENGAN KOTAK JUMLAH JOB & WARNA BACKGROUND) ───
+# ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
 st.markdown("""
 <div class="custom-card-container">
@@ -176,23 +175,17 @@ input_method = st.radio(
 st.markdown("<br>", unsafe_allow_html=True)
 
 if "Manual Input" in input_method:
-    # Kotak input angka untuk menentukan jumlah awal baris pekerjaan (Job)
-    num_jobs = st.number_input(
-        "Masukkan Jumlah Baris Job yang Diinginkan:",
-        min_value=1,
-        max_value=100,
-        value=len(st.session_state.df_input_data),
-        step=1
-    )
+    # Komponen Tambahan: Kotak untuk memasukkan Jumlah Job yang diinginkan
+    num_rows_input = st.number_input("Masukkan jumlah baris Job awal:", min_value=1, max_value=50, value=len(st.session_state.df_input_data), step=1)
     
-    # Jika jumlah input angka berubah, sesuaikan dimensi dataframe state pengerjaan
-    if num_jobs != len(st.session_state.df_input_data):
+    # Menyesuaikan jumlah baris dalam session state berdasarkan jumlah job yang diinputkan
+    if num_rows_input != len(st.session_state.df_input_data):
         current_len = len(st.session_state.df_input_data)
-        if num_jobs > current_len:
-            extra_data = [{"Job_Name": f"Job {i+1}", "Processing_Time": None, "Weight": None} for i in range(current_len, num_jobs)]
-            st.session_state.df_input_data = pd.concat([st.session_state.df_input_data, pd.DataFrame(extra_data)], ignore_index=True)
+        if num_rows_input > current_len:
+            extra_df = pd.DataFrame([{"Job_Name": "", "Processing_Time": None, "Weight": None} for _ in range(num_rows_input - current_len)])
+            st.session_state.df_input_data = pd.concat([st.session_state.df_input_data, extra_df], ignore_index=True)
         else:
-            st.session_state.df_input_data = st.session_state.df_input_data.iloc[:num_jobs].reset_index(drop=True)
+            st.session_state.df_input_data = st.session_state.df_input_data.iloc[:num_rows_input].reset_index(drop=True)
 
     edited_df = st.data_editor(
         st.session_state.df_input_data,
@@ -234,7 +227,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 3: HASIL PERHITUNGAN & GANTTCHART ──────────────────────────────────
+# ─── KOTAK 3: HASIL PERHITUNGAN & GANTTCHART (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
 # Bersihkan baris-baris kosong sebelum menjalankan formula pengerjaan
@@ -263,15 +256,12 @@ if st.session_state.calculated and len(df_jobs) > 0:
     total_weight = df_wspt["Weight"].sum()
     num_jobs = len(df_wspt)
     
-    # Perbaikan format string agar kolom baru bernama Rasio sesuai tampilan setup asli
-    df_wspt["Rasio"] = df_wspt["Rasio_tj_Wj"]
-    
     mean_flow_time = total_flow_time / num_jobs
     mean_weighted_flow_time = total_weighted_flow_time / total_weight
 
     st.markdown("""
     <div class="custom-card-container">
-        <div class="custom-card-header">Hasil Perhitungan & Gantchart</div>
+        <div class="custom-card-header">📊 Hasil Perhitungan & Gantchart</div>
         <div class="custom-card-body">
     """, unsafe_allow_html=True)
     
@@ -289,9 +279,10 @@ if st.session_state.calculated and len(df_jobs) > 0:
     
     # 2. Tabel Detail Hasil Penjadwalan
     df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
-    df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]]
+    df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
+    df_display.columns = ["Job", "Rasio", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
     
-    # Format rasio string diubah menjadi format angka 2 desimal belakang koma (.2f)
+    # Format rasio diubah menjadi 2 angka dibelakang koma (.2f) sesuai permintaan
     st.dataframe(df_display.style.format({"Rasio": "{:.2f}"}), use_container_width=True)
     
     job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
@@ -339,7 +330,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
 else:
     st.markdown("""
     <div class="custom-card-container">
-        <div class="custom-card-header">Hasil Perhitungan & Gantchart</div>
+        <div class="custom-card-header">📊 Hasil Perhitungan & Gantchart</div>
         <div class="custom-card-body" style="text-align: center; color: #6b8894; padding: 45px 20px;">
             Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.
         </div>

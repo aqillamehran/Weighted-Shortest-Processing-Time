@@ -17,7 +17,6 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght=400;500;600;700&family=DM+Mono:wght=400;500&display=swap');
 
 html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavior: smooth; }
-/* Membuat background aplikasi lebih berwarna pastel lembut */
 .stApp { background: #F4F8FA; } 
 
 /* SIDEBAR STYLE */
@@ -25,7 +24,7 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 [data-testid="stSidebar"] * { color: #124d61 !important; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #124d61 !important; font-weight: 700; }
 
-/* HERO BANNER - Dibuat lebih ringkas padding-nya */
+/* HERO BANNER */
 .hero-banner {
     background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
     border-radius: 16px; padding: 20px 25px; margin-bottom: 20px;
@@ -34,7 +33,7 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 .hero-title { font-size: 24px; font-weight: 700; color: #FFFFFF; margin: 0 0 4px; }
 .hero-sub { font-size: 12px; color: #accad7; margin: 0; }
 
-/* KOTAK CONTAINER DENGAN HEADER BAR BERWARNA (Mengurangi Ruang Kosong) */
+/* CONTAINER CARD */
 .custom-card-container {
     background-color: #FFFFFF;
     border: 2px solid #accad7;
@@ -43,26 +42,15 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
     margin-bottom: 22px;
     box-shadow: 0 4px 10px rgba(172, 202, 215, 0.2);
 }
-
-/* BAR BERWARNA UNTUK JUDUL YANG MENYATU */
 .custom-card-header {
     background: linear-gradient(90deg, #124d61 0%, #1e7796 100%);
-    padding: 12px 20px;
-    color: #FFFFFF !important;
-    font-size: 17px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 12px 20px; color: #FFFFFF !important;
+    font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px;
     border-bottom: 2px solid #accad7;
 }
+.custom-card-body { padding: 20px; }
 
-/* KONTEN UTAMA DI DALAM KOTAK (Padding dioptimalkan agar padat) */
-.custom-card-body {
-    padding: 20px;
-}
-
-/* WARNA UNTUK TABEL INPUT DATA EDITOR */
+/* DATA EDITOR GRID */
 [data-testid="stDataEditor"] {
     background-color: #F4F8FA !important;
     border: 1px solid #accad7 !important;
@@ -98,23 +86,23 @@ div.stButton > button:first-child {
     background-color: #ffffff; color: #124d61 !important;
     text-decoration: none !important; font-weight: 600;
     border-radius: 8px; border: 1px solid #1e7796;
-    transition: all 0.2s ease; text-align: center;
-    font-size: 13px;
+    transition: all 0.2s ease; text-align: center; font-size: 13px;
 }
-.nav-link:hover {
-    background-color: #1e7796; color: #ffffff !important;
-}
+.nav-link:hover { background-color: #1e7796; color: #ffffff !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ─── INISIALISASI DATA KOSONG (Fix Bug Baris & Auto Clear) ───────────────────
+# ─── INISIALISASI DATA KOSONG YANG DISINKRONKAN BERDASARKAN STATE ───────────
+# Menggunakan template baris awal default sebanyak 6 baris (sesuai kebutuhan awal Anda)
 if 'df_input_data' not in st.session_state:
-    st.session_state.df_input_data = pd.DataFrame([{"Job_Name": "", "Processing_Time": None, "Weight": None}])
+    st.session_state.df_input_data = pd.DataFrame([
+        {"Job_Name": f"Job {i+1}", "Processing_Time": None, "Weight": None} for i in range(6)
+    ])
 
 if 'calculated' not in st.session_state:
     st.session_state.calculated = False
 
-# ─── SIDEBAR: Navigasi Tanpa Label Angka (Scroll ke Bawah) ────────────────────
+# ─── SIDEBAR NAVIGATION ──────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
     <div style='padding: 5px 0 5px'>
@@ -160,7 +148,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
+# ─── KOTAK 2: INPUT DATA JOB (SINKRON ANTARA INPUT DAN JUMLAH TABEL) ───────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
 st.markdown("""
 <div class="custom-card-container">
@@ -177,18 +165,32 @@ input_method = st.radio(
 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
 if "Manual Input" in input_method:
-    # Kotak interaktif penentu jumlah baris awal pengerjaan job
-    num_rows_input = st.number_input("Masukkan jumlah baris Job awal:", min_value=1, max_value=50, value=len(st.session_state.df_input_data), step=1)
+    # 1. Mengambil jumlah baris saat ini di session state sebagai nilai default
+    current_rows = len(st.session_state.df_input_data)
     
-    if num_rows_input != len(st.session_state.df_input_data):
-        current_len = len(st.session_state.df_input_data)
-        if num_rows_input > current_len:
-            extra_df = pd.DataFrame([{"Job_Name": "", "Processing_Time": None, "Weight": None} for _ in range(num_rows_input - current_len)])
+    # 2. Kotak input angka untuk mengatur jumlah baris pengerjaan
+    num_rows_input = st.number_input(
+        "Masukkan jumlah baris Job awal:", 
+        min_value=1, 
+        max_value=100, 
+        value=current_rows, 
+        step=1
+    )
+    
+    # 3. Sinkronisasi Logika Penambahan/Pengurangan Baris agar isi tabel tidak hilang
+    if num_rows_input != current_rows:
+        if num_rows_input > current_rows:
+            # Jika angka input bertambah, buat baris baru kosong dengan nama default otomatis sambungannya
+            extra_df = pd.DataFrame([
+                {"Job_Name": f"Job {i+1}", "Processing_Time": None, "Weight": None} 
+                for i in range(current_rows, num_rows_input)
+            ])
             st.session_state.df_input_data = pd.concat([st.session_state.df_input_data, extra_df], ignore_index=True)
         else:
+            # Jika angka input berkurang, potong baris tabel bagian bawah sesuai batas angka baru
             st.session_state.df_input_data = st.session_state.df_input_data.iloc[:num_rows_input].reset_index(drop=True)
 
-    # Mengubah num_rows menjadi "fixed" agar baris bawah/tombol tambah bawaan hilang
+    # 4. Tampilkan tabel editor tanpa bar bawah tambahan (num_rows="fixed")
     edited_df = st.data_editor(
         st.session_state.df_input_data,
         num_rows="fixed",
@@ -200,6 +202,7 @@ if "Manual Input" in input_method:
         },
         key="editor_grid"
     )
+    # Simpan kembali perubahan ketikan user ke session state
     st.session_state.df_input_data = edited_df
 else:
     uploaded_file = st.file_uploader("Unggah file Excel (.xlsx) atau CSV Anda di sini (Pastikan judul kolom: Job_Name, Processing_Time, Weight)", type=["csv", "xlsx"])
@@ -229,7 +232,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 3: HASIL PERHITUNGAN & GANTTCHART (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
+# ─── KOTAK 3: HASIL PERHITUNGAN & GANTTCHART ──────────────────────────────────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
 df_jobs = st.session_state.df_input_data.dropna(subset=["Job_Name", "Processing_Time", "Weight"]).copy()
@@ -266,7 +269,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
         <div class="custom-card-body">
     """, unsafe_allow_html=True)
     
-    # 1. Tampilan Ringkasan Metrik
+    # Metrik Ringkasan Nilai
     m1, m2, m3 = st.columns(3)
     with m1:
         st.markdown(f"""<div class="metric-card primary"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time}</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
@@ -278,12 +281,11 @@ if st.session_state.calculated and len(df_jobs) > 0:
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     st.markdown("**Tabel Perhitungan Urutan Hasil Optimasi WSPT (Dijabarkan):**")
     
-    # 2. Tabel Detail Hasil Penjadwalan
+    # Detail Tabel Hasil Akhir
     df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
     df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
     df_display.columns = ["Job", "Rasio", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
     
-    # Format rasio diatur 2 angka di belakang koma (.2f)
     st.dataframe(df_display.style.format({"Rasio": "{:.2f}"}), use_container_width=True)
     
     job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
@@ -292,7 +294,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
     st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
     st.markdown("**Visualisasi Timeline Gantt Chart:**")
     
-    # 3. Gantt Chart Interaktif (Plotly)
+    # Gambar Plotly Gantt Chart
     fig_gantt = go.Figure()
     custom_colors = ['#accad7', '#87BDD8', '#5B9AA0', '#4F8A8B', '#1e7796', '#124d61', '#3A6073', '#709FB0']
     
@@ -316,7 +318,6 @@ if st.session_state.calculated and len(df_jobs) > 0:
     )
     st.plotly_chart(fig_gantt, use_container_width=True)
     
-    # 4. Petunjuk Download Grafik Gantt Chart sebagai Gambar (.png)
     st.markdown("""
     <div style="background-color: #EBF3F5; border-left: 4px solid #1e7796; padding: 12px; border-radius: 8px; margin-top: 5px; font-size: 13px;">
         📸 <b>Tombol Download Gambar Gantt Chart Bawaan:</b> Gerakkan kursor mouse ke area grafik batang di atas. Menu toolbar kecil akan muncul di <b>pojok kanan atas grafik</b>, silakan klik ikon berlambang <b>Kamera (Download plot as a png)</b> untuk mengunduhnya secara instan.

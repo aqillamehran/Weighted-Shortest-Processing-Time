@@ -33,12 +33,27 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 .hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
 .hero-sub { font-size: 13px; color: #accad7; margin: 0; }
 
-/* CARD SECTION (KOTAK-KOTAK LEMBAR PEMBAHASAN) */
-.section-sheet {
-    background: #F4F8FA; border-radius: 20px; padding: 25px; margin-bottom: 35px;
-    border: 2px solid #accad7; box-shadow: 0 4px 10px rgba(172,202,215,0.2);
+/* KOTAK BASE PEMBAHASAN (Sesuai Bentuk Gambar: Melengkung, Background Putih Bersih, Border Tipis) */
+.custom-base-box {
+    background-color: #FFFFFF;
+    border: 1px solid #accad7;
+    border-top: 4px solid #1e7796;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 35px;
+    box-shadow: 0 4px 12px rgba(172, 202, 215, 0.2);
 }
-.section-title { font-size: 20px; font-weight: 700; color: #124d61; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+/* JUDUL DI DALAM KOTAK */
+.box-title-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #124d61;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 /* METRIC CARD STYLE */
 .metric-card {
@@ -106,10 +121,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────────────────────────
+# ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN (DI DALAM KOTAK BASE) ─────────
 st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
+st.markdown('<div class="custom-base-box">', unsafe_allow_html=True)
+st.markdown('<div class="box-title-text">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
 st.markdown("""
 **⚙️ Aturan WSPT:**
 Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (*Single Machine Scheduling*). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai **Waktu Proses dibagi dengan Bobot Kepentingan** ($t_j / W_j$) dari urutan yang **paling kecil hingga terbesar**. Metode ini terbukti meminimalkan *Total Weighted Flow Time*.
@@ -122,10 +137,10 @@ Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalk
 """)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
+# ─── KOTAK 2: INPUT DATA JOB (DI DALAM KOTAK BASE) ────────────────────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
-st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-st.markdown('<div class="section-title">📂 Input Data Job (Pekerjaan)</div>', unsafe_allow_html=True)
+st.markdown('<div class="custom-base-box">', unsafe_allow_html=True)
+st.markdown('<div class="box-title-text">📂 Input Data Job (Pekerjaan)</div>', unsafe_allow_html=True)
 
 input_method = st.radio(
     "Pilih Metode Memasukkan Data:",
@@ -172,7 +187,7 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         st.warning("Mohon masukkan setidaknya satu data pengerjaan job secara lengkap terlebih dahulu!")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── KOTAK 3: HASIL PERHITUNGAN & GRAFIK (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
+# ─── KOTAK 3: HASIL PERHITUNGAN & GRAFIK (DI DALAM KOTAK BASE) ────────────────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
 # Bersihkan baris-baris kosong sebelum menjalankan formula pengerjaan
@@ -204,8 +219,8 @@ if st.session_state.calculated and len(df_jobs) > 0:
     mean_flow_time = total_flow_time / num_jobs
     mean_weighted_flow_time = total_weighted_flow_time / total_weight
 
-    st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">📊 Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
+    st.markdown('<div class="custom-base-box">', unsafe_allow_html=True)
+    st.markdown('<div class="box-title-text">📊 Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
     
     # 1. Tampilan Ringkasan Metrik
     m1, m2, m3 = st.columns(3)
@@ -266,7 +281,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
     
     st.markdown('</div>', unsafe_allow_html=True)
 else:
-    st.markdown('<div class="section-sheet" style="text-align: center; color: #6b8894; padding: 45px 20px;">', unsafe_allow_html=True)
-    st.markdown('### 📊 Hasil Perhitungan & Grafik Linimasa', unsafe_allow_html=True)
+    st.markdown('<div class="custom-base-box" style="text-align: center; color: #6b8894; padding: 45px 20px;">', unsafe_allow_html=True)
+    st.markdown('<div class="box-title-text" style="justify-content: center;">📊 Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
     st.write("Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.")
     st.markdown('</div>', unsafe_allow_html=True)

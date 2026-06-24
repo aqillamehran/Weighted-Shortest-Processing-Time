@@ -188,9 +188,10 @@ if "Manual Input" in input_method:
         else:
             st.session_state.df_input_data = st.session_state.df_input_data.iloc[:num_rows_input].reset_index(drop=True)
 
+    # Mengubah num_rows menjadi "fixed" agar baris bawah/tombol tambah bawaan hilang
     edited_df = st.data_editor(
         st.session_state.df_input_data,
-        num_rows="dynamic",
+        num_rows="fixed",
         use_container_width=True,
         column_config={
             "Job_Name": st.column_config.TextColumn("Nama Job", required=True),

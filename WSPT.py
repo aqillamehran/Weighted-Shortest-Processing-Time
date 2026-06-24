@@ -59,7 +59,7 @@ div.stButton > button:first-child {
     background: linear-gradient(135deg, #1e7796 0%, #124d61 100%) !important;
     color: white !important; font-weight: 600 !important;
     border-radius: 12px !important; border: none !important;
-    padding: 10px 24px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
+    padding: 12px 24px !important; box-shadow: 0 4px 10px rgba(18,77,97,0.2);
     width: 100%;
 }
 
@@ -87,7 +87,6 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.markdown("<hr style='border-color: #124d61;'>", unsafe_allow_html=True)
     
-    # Membuat tombol navigasi HTML Anchor yang jika diklik otomatis scroll layar ke bawah
     st.markdown('<a class="nav-link" href="#lembar-1-panduan">📖 Lembar 1: Panduan</a>', unsafe_allow_html=True)
     st.markdown('<a class="nav-link" href="#lembar-2-input-data">📂 Lembar 2: Input Data</a>', unsafe_allow_html=True)
     st.markdown('<a class="nav-link" href="#lembar-3-hasil-perhitungan">📊 Lembar 3: Hasil & Grafik</a>', unsafe_allow_html=True)
@@ -100,21 +99,17 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Inisialisasi default data di Session State agar aman dari reload data kosongan
+# Inisialisasi Session State untuk pemicu kalkulasi agar tidak otomatis terhitung di awal
+if 'calculated' not in st.session_state:
+    st.session_state.calculated = False
+
+# Inisialisasi awal tabel kosong agar diisi mandiri oleh pengguna
 if 'df_input_data' not in st.session_state:
     st.session_state.df_input_data = pd.DataFrame([
-        {"Job_Name": "Job 1", "Processing_Time": 5, "Weight": 1},
-        {"Job_Name": "Job 2", "Processing_Time": 8, "Weight": 2},
-        {"Job_Name": "Job 3", "Processing_Time": 6, "Weight": 3},
-        {"Job_Name": "Job 4", "Processing_Time": 3, "Weight": 1},
-        {"Job_Name": "Job 5", "Processing_Time": 10, "Weight": 2},
-        {"Job_Name": "Job 6", "Processing_Time": 14, "Weight": 3},
-        {"Job_Name": "Job 7", "Processing_Time": 7, "Weight": 2},
-        {"Job_Name": "Job 8", "Processing_Time": 3, "Weight": 1},
+        {"Job_Name": "", "Processing_Time": None, "Weight": None}
     ])
 
 # ─── LEMBAR 1: PANDUAN & ATURAN ───────────────────────────────────────────────
-# Menanamkan HTML id agar sidebar bisa melompat ke sini
 st.markdown('<div id="lembar-1-panduan"></div>', unsafe_allow_html=True)
 st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
 st.markdown('<div class="section-title">📖 Lembar 1: Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
@@ -124,7 +119,7 @@ Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalk
 
 **📘 Cara Penggunaan Aplikasi:**
 1. Gulir ke bawah ke **Lembar 2** atau klik menu di sidebar kiri.
-2. Masukkan data secara manual di komponen tabel editor atau pilih metode upload berkas `.csv`.
+2. Masukkan data secara manual di komponen tabel editor (gunakan tombol `+` di bawah tabel untuk menambah baris baru) atau pilih metode upload berkas `.csv`.
 3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
 4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada **Lembar 3**.
 """)
@@ -149,11 +144,12 @@ if "Manual Input" in input_method:
         num_rows="dynamic",
         use_container_width=True,
         column_config={
-            "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True),
+            "Job_Name": st.column_config.TextColumn("Nama Job / Pekerjaan", required=True, placeholder="contoh: Job 1"),
             "Processing_Time": st.column_config.NumberColumn("Waktu Proses ($t_j$)", min_value=1, step=1, format="%d"),
             "Weight": st.column_config.NumberColumn("Bobot ($W_j$)", min_value=1, step=1, format="%d")
         }
     )
+    # Filter baris kosong yang belum diisi oleh pengguna agar tidak memicu error sistem
     st.session_state.df_input_data = edited_df
 else:
     uploaded_file = st.file_uploader("Unggah file CSV Anda di sini (Pastikan judul kolom: Job_Name, Processing_Time, Weight)", type=["csv"])
@@ -167,19 +163,26 @@ else:
             st.error(f"Gagal membaca file CSV, pastikan formatnya benar. Error: {e}")
 
 st.markdown("<br>", unsafe_allow_html=True)
-execute_calculation = st.button("▶️ Hitung Penjadwalan WSPT", type="primary")
+if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
+    st.session_state.calculated = True
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ─── LEMBAR 3: HASIL PERHITUNGAN & DOWNLOAD ──────────────────────────────────
 st.markdown('<div id="lembar-3-hasil-perhitungan"></div>', unsafe_allow_html=True)
 
-# Logika pengerjaan data dijalankan langsung agar tidak kosong saat user mengedit tabel
-df_jobs = st.session_state.df_input_data.dropna().copy()
+# Lakukan penyaringan data masukan pengguna
+df_clean = st.session_state.df_input_data.copy()
+df_clean = df_clean.dropna(subset=["Processing_Time", "Weight"])
+df_clean = df_clean[df_clean["Job_Name"].str.strip() != ""]
 
-if df_jobs is not None and len(df_jobs) > 0:
+# Tampilkan halaman Lembar 3 dalam keadaan terkotak rapi
+st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📊 Lembar 3: Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
+
+if st.session_state.calculated and len(df_clean) > 0:
     # ─── WSPT Calculation Logic (TIDAK BERUBAH) ───────────────────────────
-    df_jobs["Rasio_tj_Wj"] = df_jobs["Processing_Time"] / df_jobs["Weight"]
-    df_wspt = df_jobs.sort_values(by=["Rasio_tj_Wj", "Processing_Time"], ascending=[True, True]).reset_index(drop=True)
+    df_clean["Rasio_tj_Wj"] = df_clean["Processing_Time"] / df_clean["Weight"]
+    df_wspt = df_clean.sort_values(by=["Rasio_tj_Wj", "Processing_Time"], ascending=[True, True]).reset_index(drop=True)
     
     start_times = []
     flow_times = []
@@ -202,10 +205,6 @@ if df_jobs is not None and len(df_jobs) > 0:
     mean_flow_time = total_flow_time / num_jobs
     mean_weighted_flow_time = total_weighted_flow_time / total_weight
 
-    # Box Lembar 3 dimasukkan ke dalam Kotak Sesuai Request
-    st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">📊 Lembar 3: Hasil Perhitungan & Grafik Linimasa</div>', unsafe_allow_html=True)
-    
     # 1. Ringkasan Metrik Angka
     m1, m2, m3 = st.columns(3)
     with m1:
@@ -231,7 +230,7 @@ if df_jobs is not None and len(df_jobs) > 0:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("**Visualisasi Timeline Gantt Chart:**")
     
-    # 3. Visualisasi Gantt Chart (Plotly menyediakan tombol download gambar bawaan di pojok kanan atas grafik)
+    # 3. Visualisasi Gantt Chart (Plotly menyediakan tombol unduh gambar bawaan)
     fig_gantt = go.Figure()
     custom_colors = ['#accad7', '#87BDD8', '#5B9AA0', '#4F8A8B', '#1e7796', '#124d61', '#3A6073', '#709FB0']
     
@@ -256,10 +255,10 @@ if df_jobs is not None and len(df_jobs) > 0:
     st.plotly_chart(fig_gantt, use_container_width=True)
     
     st.markdown("""
-    💡 *Tip: Untuk menyimpan Gantt Chart di atas menjadi gambar (.png), cukup arahkan kursor Anda ke pojok kanan atas grafik tersebut, lalu klik ikon berbentuk kamera (**"Download plot as a png"**).*
+    💡 *Tip: Untuk menyimpan Gantt Chart menjadi gambar (.png), arahkan kursor Anda ke area kanan atas grafik tersebut, lalu klik ikon kamera (**"Download plot as a png"**).*
     """)
     
-    # 4. Tombol Download Hasil CSV
+    # 4. Tombol Download Tabel Hasil
     csv_buffer = BytesIO()
     df_display.to_csv(csv_buffer, index=True)
     st.markdown("<br>", unsafe_allow_html=True)
@@ -269,6 +268,7 @@ if df_jobs is not None and len(df_jobs) > 0:
         file_name="hasil_penjadwalan_wspt.csv",
         mime="text/csv"
     )
-    st.markdown('</div>', unsafe_allow_html=True)
 else:
-    st.warning("Silakan isi data pekerjaan di Lembar 2 terlebih dahulu.")
+    st.info("Waiting for Data... Silakan isi data pekerjaan di Lembar 2, lalu klik tombol 'Hitung Penjadwalan WSPT' untuk menampilkan hasil analisa di sini.")
+
+st.markdown('</div>', unsafe_allow_html=True)

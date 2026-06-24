@@ -93,7 +93,6 @@ div.stButton > button:first-child {
 """, unsafe_allow_html=True)
 
 # ─── INISIALISASI DATA KOSONG YANG DISINKRONKAN BERDASARKAN STATE ───────────
-# Menggunakan template baris awal default sebanyak 6 baris (sesuai kebutuhan awal Anda)
 if 'df_input_data' not in st.session_state:
     st.session_state.df_input_data = pd.DataFrame([
         {"Job_Name": f"Job {i+1}", "Processing_Time": None, "Weight": None} for i in range(6)
@@ -148,7 +147,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 2: INPUT DATA JOB (SINKRON ANTARA INPUT DAN JUMLAH TABEL) ───────────
+# ─── KOTAK 2: INPUT DATA JOB ──────────────────────────────────────────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
 st.markdown("""
 <div class="custom-card-container">
@@ -165,10 +164,8 @@ input_method = st.radio(
 st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
 if "Manual Input" in input_method:
-    # 1. Mengambil jumlah baris saat ini di session state sebagai nilai default
     current_rows = len(st.session_state.df_input_data)
     
-    # 2. Kotak input angka untuk mengatur jumlah baris pengerjaan
     num_rows_input = st.number_input(
         "Masukkan jumlah baris Job awal:", 
         min_value=1, 
@@ -177,32 +174,27 @@ if "Manual Input" in input_method:
         step=1
     )
     
-    # 3. Sinkronisasi Logika Penambahan/Pengurangan Baris agar isi tabel tidak hilang
     if num_rows_input != current_rows:
         if num_rows_input > current_rows:
-            # Jika angka input bertambah, buat baris baru kosong dengan nama default otomatis sambungannya
             extra_df = pd.DataFrame([
                 {"Job_Name": f"Job {i+1}", "Processing_Time": None, "Weight": None} 
                 for i in range(current_rows, num_rows_input)
             ])
             st.session_state.df_input_data = pd.concat([st.session_state.df_input_data, extra_df], ignore_index=True)
         else:
-            # Jika angka input berkurang, potong baris tabel bagian bawah sesuai batas angka baru
             st.session_state.df_input_data = st.session_state.df_input_data.iloc[:num_rows_input].reset_index(drop=True)
 
-    # 4. Tampilkan tabel editor tanpa bar bawah tambahan (num_rows="fixed")
     edited_df = st.data_editor(
         st.session_state.df_input_data,
         num_rows="fixed",
         use_container_width=True,
         column_config={
             "Job_Name": st.column_config.TextColumn("Nama Job", required=True),
-            "Processing_Time": st.column_config.NumberColumn("Waktu Proses", min_value=1, step=1, format="%d"),
+            "Processing_Time": st.column_config.NumberColumn("Waktu Proses (menit)", min_value=1, step=1, format="%d"),
             "Weight": st.column_config.NumberColumn("Bobot", min_value=1, step=1, format="%d")
         },
         key="editor_grid"
     )
-    # Simpan kembali perubahan ketikan user ke session state
     st.session_state.df_input_data = edited_df
 else:
     uploaded_file = st.file_uploader("Unggah file Excel (.xlsx) atau CSV Anda di sini (Pastikan judul kolom: Job_Name, Processing_Time, Weight)", type=["csv", "xlsx"])
@@ -238,7 +230,7 @@ st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 df_jobs = st.session_state.df_input_data.dropna(subset=["Job_Name", "Processing_Time", "Weight"]).copy()
 
 if st.session_state.calculated and len(df_jobs) > 0:
-    # ─── WSPT Calculation Logic (TIDAK BERUBAH) ───────────────────────────
+    # ─── WSPT Calculation Logic ───────────────────────────────────────────
     df_jobs["Rasio_tj_Wj"] = df_jobs["Processing_Time"] / df_jobs["Weight"]
     df_wspt = df_jobs.sort_values(by=["Rasio_tj_Wj", "Processing_Time"], ascending=[True, True]).reset_index(drop=True)
     
@@ -269,24 +261,24 @@ if st.session_state.calculated and len(df_jobs) > 0:
         <div class="custom-card-body">
     """, unsafe_allow_html=True)
     
-    # Metrik Ringkasan Nilai
+    # Metrik Ringkasan Nilai (Ditambahkan satuan menit)
     m1, m2, m3 = st.columns(3)
     with m1:
-        st.markdown(f"""<div class="metric-card primary"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time}</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
+        st.markdown(f"""<div class="metric-card primary"><div class="metric-label">Total Flow Time</div><div class="metric-value">{total_flow_time} menit</div><div class="metric-sub">Jumlah total waktu alir</div></div>""", unsafe_allow_html=True)
     with m2:
-        st.markdown(f"""<div class="metric-card secondary"><div class="metric-label">Rata-rata Flow Time</div><div class="metric-value">{mean_flow_time:.2f}</div><div class="metric-sub">{total_flow_time} / {num_jobs} Job</div></div>""", unsafe_allow_html=True)
+        st.markdown(f"""<div class="metric-card secondary"><div class="metric-label">Rata-rata Flow Time</div><div class="metric-value">{mean_flow_time:.2f} menit</div><div class="metric-sub">{total_flow_time} / {num_jobs} Job</div></div>""", unsafe_allow_html=True)
     with m3:
-        st.markdown(f"""<div class="metric-card accent"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f}</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} Total Bobot</div></div>""", unsafe_allow_html=True)
+        st.markdown(f"""<div class="metric-card accent"><div class="metric-label">Rata-rata Flow Time Tertimbang</div><div class="metric-value">{mean_weighted_flow_time:.5f} menit</div><div class="metric-sub">{total_weighted_flow_time} / {total_weight} Total Bobot</div></div>""", unsafe_allow_html=True)
     
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     st.markdown("**Tabel Perhitungan Urutan Hasil Optimasi WSPT (Dijabarkan):**")
     
-    # Detail Tabel Hasil Akhir
+    # Detail Tabel Hasil Akhir (Nama kolom disesuaikan dengan satuan menit)
     df_wspt["Sequence"] = [f"Urutan {i+1}" for i in range(len(df_wspt))]
     df_display = df_wspt.set_index("Sequence")[["Job_Name", "Rasio_tj_Wj", "Weight", "Processing_Time", "Flow_Time", "Weighted_Flow_Time"]]
-    df_display.columns = ["Job", "Rasio", "Bobot", "Waktu", "Flow Time", "Weighted Flow Time"]
+    df_display.columns = ["Job", "Rasio (tj/Wj)", "Bobot (Wj)", "Waktu Proses (menit)", "Flow Time (menit)", "Weighted Flow Time"]
     
-    st.dataframe(df_display.style.format({"Rasio": "{:.2f}"}), use_container_width=True)
+    st.dataframe(df_display.style.format({"Rasio (tj/Wj)": "{:.2f}"}), use_container_width=True)
     
     job_order = "-".join([str(name).replace("Job ", "") for name in df_wspt["Job_Name"]])
     st.success(f"📌 **Urutan Akhir yang Terbentuk:** {job_order}")
@@ -294,7 +286,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
     st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
     st.markdown("**Visualisasi Timeline Gantt Chart:**")
     
-    # Gambar Plotly Gantt Chart
+    # Gambar Plotly Gantt Chart (Sumbu X disesuaikan dengan satuan menit)
     fig_gantt = go.Figure()
     custom_colors = ['#accad7', '#87BDD8', '#5B9AA0', '#4F8A8B', '#1e7796', '#124d61', '#3A6073', '#709FB0']
     
@@ -313,7 +305,7 @@ if st.session_state.calculated and len(df_jobs) > 0:
     fig_gantt.update_layout(
         barmode='stack', height=200, plot_bgcolor="#FFFFFF", paper_bgcolor="rgba(0,0,0,0)",
         showlegend=True, margin=dict(l=10, r=10, t=15, b=15),
-        xaxis=dict(title="Sumbu Linimasa Waktu", gridcolor="#F0F4F6", tickvals=[0] + list(df_wspt["Flow_Time"])),
+        xaxis=dict(title="Sumbu Linimasa Waktu (menit)", gridcolor="#F0F4F6", tickvals=[0] + list(df_wspt["Flow_Time"])),
         yaxis=dict(showticklabels=False)
     )
     st.plotly_chart(fig_gantt, use_container_width=True)
@@ -330,10 +322,4 @@ if st.session_state.calculated and len(df_jobs) > 0:
     """, unsafe_allow_html=True)
 else:
     st.markdown("""
-    <div class="custom-card-container">
-        <div class="custom-card-header">📊 Hasil Perhitungan & Gantchart</div>
-        <div class="custom-card-body" style="text-align: center; color: #6b8894; padding: 35px 20px;">
-            Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    <div class="

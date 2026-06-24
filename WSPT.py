@@ -24,16 +24,7 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 [data-testid="stSidebar"] * { color: #124d61 !important; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #124d61 !important; font-weight: 700; }
 
-/* HERO BANNER */
-.hero-banner {
-    background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
-    border-radius: 24px; padding: 30px 35px; margin-bottom: 25px;
-    box-shadow: 0 8px 20px rgba(30,119,150,0.15);
-}
-.hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
-.hero-sub { font-size: 13px; color: #accad7; margin: 0; }
-
-/* KOTAK BASE PEMBAHASAN (Sesuai Bentuk Gambar: Melengkung, Background Putih Bersih, Border Tipis) */
+/* KOTAK BASE PEMBAHASAN (Melengkung, Background Putih, Border Tipis dengan Header Menyatu) */
 .custom-base-box {
     background-color: #FFFFFF;
     border: 1px solid #accad7;
@@ -54,6 +45,15 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
     align-items: center;
     gap: 10px;
 }
+
+/* HERO BANNER */
+.hero-banner {
+    background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
+    border-radius: 24px; padding: 30px 35px; margin-bottom: 25px;
+    box-shadow: 0 8px 20px rgba(30,119,150,0.15);
+}
+.hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
+.hero-sub { font-size: 13px; color: #accad7; margin: 0; }
 
 /* METRIC CARD STYLE */
 .metric-card {
@@ -121,23 +121,23 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN (DI DALAM KOTAK BASE) ─────────
+# ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────────────────────────
 st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
-st.markdown('<div class="custom-base-box">', unsafe_allow_html=True)
-st.markdown('<div class="box-title-text">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
 st.markdown("""
-**⚙️ Aturan WSPT:**
-Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (*Single Machine Scheduling*). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai **Waktu Proses dibagi dengan Bobot Kepentingan** ($t_j / W_j$) dari urutan yang **paling kecil hingga terbesar**. Metode ini terbukti meminimalkan *Total Weighted Flow Time*.
+<div class="custom-base-box">
+    <div class="box-title-text">📖 Aturan WSPT & Petunjuk Penggunaan</div>
+    <p><b>⚙️ Aturan WSPT:</b><br>
+    Metode <b>WSPT (Weighted Shortest Processing Time)</b> digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (<i>Single Machine Scheduling</i>). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai <b>Waktu Proses dibagi dengan Bobot Kepentingan</b> ($t_j / W_j$) dari urutan yang <b>paling kecil hingga terbesar</b>. Metode ini terbukti meminimalkan <i>Total Weighted Flow Time</i>.</p>
+    <br>
+    <p><b>📘 Cara Penggunaan Aplikasi:</b><br>
+    1. Gulir ke bawah ke lembar <b>Input Data Job</b> atau klik tombol pintasan di sidebar kiri.<br>
+    2. Masukkan data secara manual di tabel editor atau pilih metode upload dari file berkas Excel atau CSV.<br>
+    3. Tekan tombol <b>▶️ Hitung Penjadwalan WSPT</b>.<br>
+    4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar <b>Hasil Perhitungan & Grafik Linimasa</b>.</p>
+</div>
+""", unsafe_allow_html=True)
 
-**📘 Cara Penggunaan Aplikasi:**
-1. Gulir ke bawah ke lembar **Input Data Job** atau klik tombol pintasan di sidebar kiri.
-2. Masukkan data secara manual di tabel editor atau pilih metode upload dari file berkas Excel atau CSV.
-3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
-4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar **Hasil Perhitungan & Grafik Linimasa**.
-""")
-st.markdown('</div>', unsafe_allow_html=True)
-
-# ─── KOTAK 2: INPUT DATA JOB (DI DALAM KOTAK BASE) ────────────────────────────
+# ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
 st.markdown('<div class="custom-base-box">', unsafe_allow_html=True)
 st.markdown('<div class="box-title-text">📂 Input Data Job (Pekerjaan)</div>', unsafe_allow_html=True)
@@ -187,7 +187,7 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         st.warning("Mohon masukkan setidaknya satu data pengerjaan job secara lengkap terlebih dahulu!")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── KOTAK 3: HASIL PERHITUNGAN & GRAFIK (DI DALAM KOTAK BASE) ────────────────
+# ─── KOTAK 3: HASIL PERHITUNGAN & GRAFIK (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
 # Bersihkan baris-baris kosong sebelum menjalankan formula pengerjaan

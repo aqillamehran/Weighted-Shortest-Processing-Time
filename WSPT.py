@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS (Menyesuaikan dengan Tampilan Kotak Contoh Gambar) ──────────
+# ─── Custom CSS (Cute Style, Clean Base, & Custom Palette) ─────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght=400;500;600;700&family=DM+Mono:wght=400;500&display=swap');
@@ -24,29 +24,16 @@ html, body, [class*="css"] { font-family: 'Quicksand', sans-serif; scroll-behavi
 [data-testid="stSidebar"] * { color: #124d61 !important; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #124d61 !important; font-weight: 700; }
 
-/* KOTAK BASE PEMBAHASAN (Sesuai Contoh Gambar Berwarna Putih Bersih, Melengkung, Border Pink Tipis) */
-.custom-base-box {
-    background-color: #FFFFFF;
-    border: 1px solid #FFCCD5;
-    border-top: 4px solid #FF8FA3;
-    border-radius: 12px;
-    padding: 25px 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(255, 204, 213, 0.2);
+/* HERO BANNER */
+.hero-banner {
+    background: linear-gradient(135deg, #124d61 0%, #1e7796 100%);
+    border-radius: 24px; padding: 30px 35px; margin-bottom: 25px;
+    box-shadow: 0 8px 20px rgba(30,119,150,0.15);
 }
+.hero-title { font-size: 26px; font-weight: 700; color: #FFFFFF; margin: 0 0 6px; }
+.hero-sub { font-size: 13px; color: #accad7; margin: 0; }
 
-/* Judul khusus di dalam kotak baru */
-.box-title-text {
-    font-size: 18px;
-    font-weight: 700;
-    color: #8A2846;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* CARD SECTION (KOTAK UNTUK INPUT DATA & HASIL) */
+/* CARD SECTION (KOTAK-KOTAK LEMBAR PEMBAHASAN) */
 .section-sheet {
     background: #F4F8FA; border-radius: 20px; padding: 25px; margin-bottom: 35px;
     border: 2px solid #accad7; box-shadow: 0 4px 10px rgba(172,202,215,0.2);
@@ -111,32 +98,31 @@ with st.sidebar:
     st.markdown('<a class="nav-link" href="#input-data-job">📂 Input Data Job</a>', unsafe_allow_html=True)
     st.markdown('<a class="nav-link" href="#hasil-perhitungan-grafik">📊 Hasil Perhitungan & Grafik Linimasa</a>', unsafe_allow_html=True)
 
+# ─── Hero Banner ──────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="hero-banner">
+    <div class="hero-title">✨ Weighted Shortest Processing Time (WSPT) Dashboard</div>
+    <div class="hero-sub">Sistem Optimasi Urutan Penjadwalan Kerja dalam Lembar Terkotak Nyaman</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ─── KOTAK 1: ATURAN WSPT & PETUNJUK PENGGUNAAN ──────────────────────────────
 st.markdown('<div id="aturan-wspt-panduan"></div>', unsafe_allow_html=True)
-
-# ─── IMPLEMENTASI KOTAK BARU SESUAI CONTOH GAMBAR (KOTAK 1) ─────────────────
+st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📖 Aturan WSPT & Petunjuk Penggunaan</div>', unsafe_allow_html=True)
 st.markdown("""
-<div class="custom-base-box">
-    <div class="box-title-text">🕒 Apa itu Aturan WSPT?</div>
-    <p style="color: #4A4A4A; line-height: 1.6; font-size: 14px;">
-        Metode <b>WSPT (Weighted Shortest Processing Time)</b> adalah salah satu metode penjadwalan prioritas di mana pekerjaan diurutkan berdasarkan rasio nilai <b>Waktu Proses dibagi dengan Bobot Kepentingan</b> ($t_j / W_j$) dari urutan yang <b>paling kecil hingga terbesar</b>. Secara analitis, aturan ini sangat efektif untuk meminimalkan waktu tunggu dan terbukti meminimalkan nilai <i>Total Weighted Flow Time</i> pada mesin tunggal (<i>Single Machine Scheduling</i>).
-    </p>
-</div>
-""", unsafe_allow_html=True)
+**⚙️ Aturan WSPT:**
+Metode **WSPT (Weighted Shortest Processing Time)** digunakan untuk mengoptimalkan urutan pengerjaan tugas pada satu mesin tunggal (*Single Machine Scheduling*). Aturan utamanya adalah mengurutkan pekerjaan berdasarkan rasio nilai **Waktu Proses dibagi dengan Bobot Kepentingan** ($t_j / W_j$) dari urutan yang **paling kecil hingga terbesar**. Metode ini terbukti meminimalkan *Total Weighted Flow Time*.
 
-# ─── IMPLEMENTASI KOTAK BARU SESUAI CONTOH GAMBAR (KOTAK 2) ─────────────────
-st.markdown("""
-<div class="custom-base-box">
-    <div class="box-title-text">🔧 Langkah Penggunaan Aplikasi Web</div>
-    <p style="color: #4A4A4A; line-height: 1.8; font-size: 14px;">
-        1. Buka menu samping, lalu pilih atau scroll ke area <b>"Input Data Job"</b>. Di sana Anda bisa memasukkan data secara Manual via Tabel atau Upload berkas Excel/CSV.<br>
-        2. Masukkan data pengerjaan tugas Anda secara lengkap (Nama Job, Waktu Proses, dan Bobot) pada komponen tabel editor yang disediakan.<br>
-        3. Klik tombol utama berwarna biru bertuliskan <b>▶️ Hitung Penjadwalan WSPT</b> untuk memulai pemrosesan.<br>
-        4. Sistem akan langsung menampilkan hasil analisis tabel perhitungan performa serta visualisasi interaktif Gantt Chart di bagian bawah halaman.
-    </p>
-</div>
-""", unsafe_allow_html=True)
+**📘 Cara Penggunaan Aplikasi:**
+1. Gulir ke bawah ke lembar **Input Data Job** atau klik tombol pintasan di sidebar kiri.
+2. Masukkan data secara manual di tabel editor atau pilih metode upload dari file berkas Excel atau CSV.
+3. Tekan tombol **▶️ Hitung Penjadwalan WSPT**.
+4. Hasil pengurutan detail, ringkasan nilai, dan chart linimasa pengerjaan akan langsung tersaji lengkap pada lembar **Hasil Perhitungan & Grafik Linimasa**.
+""")
+st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── KOTAK EDITOR: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
+# ─── KOTAK 2: INPUT DATA JOB (KOSONG DAN BISA DITAMBAH SEPUASNYA) ─────────────
 st.markdown('<div id="input-data-job"></div>', unsafe_allow_html=True)
 st.markdown('<div class="section-sheet">', unsafe_allow_html=True)
 st.markdown('<div class="section-title">📂 Input Data Job (Pekerjaan)</div>', unsafe_allow_html=True)
@@ -186,7 +172,7 @@ if st.button("▶️ Hitung Penjadwalan WSPT", type="primary"):
         st.warning("Mohon masukkan setidaknya satu data pengerjaan job secara lengkap terlebih dahulu!")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── KOTAK HASIL: HASIL PERHITUNGAN & GRAFIK (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
+# ─── KOTAK 3: HASIL PERHITUNGAN & GRAFIK (HANYA MUNCUL JIKA SUDAH DIKLIK) ────
 st.markdown('<div id="hasil-perhitungan-grafik"></div>', unsafe_allow_html=True)
 
 # Bersihkan baris-baris kosong sebelum menjalankan formula pengerjaan

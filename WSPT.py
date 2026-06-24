@@ -322,4 +322,10 @@ if st.session_state.calculated and len(df_jobs) > 0:
     """, unsafe_allow_html=True)
 else:
     st.markdown("""
-    <div class="
+    <div class="custom-card-container">
+        <div class="custom-card-header">📊 Hasil Perhitungan & Gantchart</div>
+        <div class="custom-card-body" style="text-align: center; color: #6b8894; padding: 35px 20px;">
+            Belum ada data pengerjaan yang diproses. Isikan data Anda pada tabel isian di atas dan tekan tombol hitung untuk memunculkan visualisasi pengerjaan di sini.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
